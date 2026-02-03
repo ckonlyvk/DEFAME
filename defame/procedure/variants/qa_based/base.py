@@ -16,6 +16,7 @@ class QABased(Procedure, ABC):
         """Generates some questions that needs to be answered during the fact-check."""
         prompt = PoseQuestionsPrompt(doc, n_questions=no_of_questions)
         response = self.llm.generate(prompt)
+        logger.warning("QABased - _pose_questions: ", response)
         if response is None:
             return []
         else:

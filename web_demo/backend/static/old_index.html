@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFAME - Fact Verification System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* Color System - Professional & Trustworthy */
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --primary-500: #0ea5e9;
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+
+            --success-50: #f0fdf4;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            --success-700: #15803d;
+
+            --danger-50: #fef2f2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            --danger-700: #b91c1c;
+
+            --warning-50: #fffbeb;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+
+            /* Spacing & Layout */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 0.75rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--neutral-50) 0%, var(--primary-50) 100%);
+            color: var(--neutral-900);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--neutral-600);
+            font-weight: 400;
+        }
+
+        /* Card Component */
+        .card {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--neutral-200);
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        /* Input Section */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--neutral-700);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--neutral-900);
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        textarea::placeholder {
+            color: var(--neutral-400);
+        }
+
+        /* Button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-xl);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Collapsible Processing Section */
+        .collapsible-card {
+            overflow: hidden;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: var(--spacing-lg);
+            margin: calc(-1 * var(--spacing-xl));
+            margin-bottom: var(--spacing-lg);
+            background: var(--neutral-50);
+            border-bottom: 1px solid var(--neutral-200);
+            transition: background-color 0.2s ease;
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            background: var(--neutral-100);
+        }
+
+        .collapsible-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .collapsible-title svg {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-600);
+        }
+
+        .collapse-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--neutral-500);
+            transition: transform 0.3s ease;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 600px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        /* Processing Steps */
+        .process-timeline {
+            position: relative;
+            padding-left: var(--spacing-xl);
+        }
+
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: var(--neutral-200);
+        }
+
+        .process-step {
+            position: relative;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0;
+            animation: slideIn 0.4s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .process-step::before {
+            content: '';
+            position: absolute;
+            left: calc(-1 * var(--spacing-xl));
+            top: 4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--neutral-300);
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .process-step.active::before {
+            background: var(--primary-500);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(14, 165, 233, 0);
+            }
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--neutral-700);
+            font-size: 0.875rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .step-header svg {
+            width: 16px;
+            height: 16px;
+            color: var(--primary-600);
+        }
+
+        .step-message {
+            background: var(--neutral-50);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            color: var(--neutral-700);
+            line-height: 1.6;
+            font-family: 'JetBrains Mono', monospace;
+            border-left: 3px solid var(--primary-200);
+        }
+
+        /* Result Section */
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--neutral-100);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+        }
+
+        .verdict-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .verdict-SUPPORTED {
+            background: var(--success-50);
+            color: var(--success-700);
+            border: 2px solid var(--success-200);
+        }
+
+        .verdict-REFUTED {
+            background: var(--danger-50);
+            color: var(--danger-700);
+            border: 2px solid var(--danger-200);
+        }
+
+        .verdict-NEI {
+            background: var(--warning-50);
+            color: var(--warning-600);
+            border: 2px solid var(--warning-200);
+        }
+
+        .section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-header svg {
+            width: 20px;
+            height: 20px;
+            color: var(--primary-600);
+        }
+
+        .justification-box {
+            background: var(--neutral-50);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary-500);
+            line-height: 1.8;
+            color: var(--neutral-700);
+        }
+
+        .justification-box b {
+            color: var(--neutral-900);
+            font-weight: 600;
+        }
+
+        .justification-box a {
+            color: var(--primary-600);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .justification-box a:hover {
+            color: var(--primary-700);
+        }
+
+        /* Evidence Cards */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            list-style: none;
+        }
+
+        .evidence-card {
+            background: var(--neutral-50);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--neutral-200);
+            transition: all 0.2s ease;
+            animation: fadeInUp 0.4s ease-out backwards;
+        }
+
+        .evidence-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-300);
+        }
+
+        .evidence-card:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .evidence-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .evidence-card:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .evidence-card:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .evidence-card:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .evidence-card:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+        .evidence-text {
+            font-size: 0.875rem;
+            color: var(--neutral-700);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .evidence-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--neutral-200);
+            font-size: 0.75rem;
+            color: var(--primary-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .evidence-link:hover {
+            color: var(--primary-700);
+        }
+
+        .evidence-link svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .evidence-link span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--spacing-lg) var(--spacing-md);
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: var(--spacing-lg);
+            }
+
+            .collapsible-header {
+                padding: var(--spacing-md);
+                margin: calc(-1 * var(--spacing-lg));
+                margin-bottom: var(--spacing-md);
+            }
+
+            .evidence-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 4px 10px;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--primary-50);
+            color: var(--primary-700);
+            border: 1px solid var(--primary-200);
+        }
+
+        .status-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                    </path>
+                </svg>
+            </div>
+            <h1>DEFAME Fact Checker</h1>
+            <p class="subtitle">AI-powered multimodal fact verification system</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="card">
+            <div class="input-group">
+                <label for="claim">Enter Claim to Verify</label>
+                <textarea id="claim" placeholder="Example: VNG is the first Vietnamese tech company listed on NASDAQ..."
+                    rows="4"></textarea>
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button class="btn" id="checkBtn" onclick="checkClaim()" style="flex: 1;">
+                        <span>Verify Claim</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </button>
+                    <button class="btn" id="resetBtn" onclick="resetForm()"
+                        style="background: linear-gradient(135deg, var(--neutral-500), var(--neutral-400)); display: none;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
+                        </svg>
+                        <span>New Check</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Section (Collapsible) -->
+        <div class="card collapsible-card hidden" id="processCard">
+            <div class="collapsible-header" onclick="toggleCollapse()">
+                <div class="collapsible-title">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                        </path>
+                    </svg>
+                    <span>Analysis Process</span>
+                    <span class="status-badge">
+                        <svg class="spinner" fill="none" viewBox="0 0 24 24"></svg>
+                        Processing
+                    </span>
+                </div>
+                <svg class="collapse-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+            <div class="collapsible-content" id="collapsibleContent">
+                <div class="process-timeline" id="processTimeline">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="card hidden" id="resultCard">
+            <div class="result-header">
+                <h2 class="result-title">Verification Result</h2>
+                <div class="verdict-badge" id="verdictBadge"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    <span>Justification</span>
+                </div>
+                <div class="justification-box" id="justificationText"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                        </path>
+                    </svg>
+                    <span>Evidence & References</span>
+                </div>
+                <ul class="evidence-grid" id="evidenceList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const claimInput = document.getElementById('claim');
+        const checkBtn = document.getElementById('checkBtn');
+        const processCard = document.getElementById('processCard');
+        const processTimeline = document.getElementById('processTimeline');
+        const resultCard = document.getElementById('resultCard');
+        const verdictBadge = document.getElementById('verdictBadge');
+        const justificationText = document.getElementById('justificationText');
+        const evidenceList = document.getElementById('evidenceList');
+        const collapsibleContent = document.getElementById('collapsibleContent');
+
+        let isCollapsed = false;
+
+        function toggleCollapse() {
+            isCollapsed = !isCollapsed;
+            const icon = document.querySelector('.collapse-icon');
+
+            if (isCollapsed) {
+                collapsibleContent.classList.add('collapsed');
+                icon.classList.add('collapsed');
+            } else {
+                collapsibleContent.classList.remove('collapsed');
+                icon.classList.remove('collapsed');
+            }
+        }
+
+        async function checkClaim() {
+            const claim = claimInput.value.trim();
+            if (!claim) {
+                claimInput.focus();
+                return;
+            }
+
+            // Reset UI
+            checkBtn.disabled = true;
+            checkBtn.innerHTML = `
+                <div class="spinner"></div>
+                <span>Verifying...</span>
+            `;
+
+            processCard.classList.remove('hidden');
+            resultCard.classList.add('hidden');
+            processTimeline.innerHTML = '';
+            isCollapsed = false;
+            collapsibleContent.classList.remove('collapsed');
+            document.querySelector('.collapse-icon').classList.remove('collapsed');
+
+            try {
+                const response = await fetch('/api/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ claim })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('event: ')) {
+                            const [meta, ...dataParts] = line.split('\n');
+                            const eventType = meta.replace('event: ', '').trim();
+                            const dataStr = dataParts.map(p => p.replace('data: ', '')).join('\n').trim();
+
+                            if (!dataStr) continue;
+                            const data = JSON.parse(dataStr);
+
+                            if (eventType === 'log') {
+                                addProcessStep(data.message);
+                            } else if (eventType === 'result') {
+                                showResult(data);
+                            } else if (eventType === 'error') {
+                                addProcessStep('ERROR: ' + data.error, true);
+                                resetButton();
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                addProcessStep('Error connecting to server', true);
+                resetButton();
+            }
+        }
+
+        function addProcessStep(message, isError = false) {
+            message = message.trim();
+            if (!message) return;
+
+            // Determine step type and icon
+            let icon = 'cog';
+            let title = 'Processing';
+
+            if (message.toLowerCase().includes('interpreting')) {
+                icon = 'search';
+                title = 'Interpreting Claim';
+            } else if (message.toLowerCase().includes('searching')) {
+                icon = 'globe';
+                title = 'Searching Evidence';
+            } else if (message.toLowerCase().includes('answering')) {
+                icon = 'chat';
+                title = 'Analyzing Information';
+            } else if (message.toLowerCase().includes('verifying')) {
+                icon = 'check-circle';
+                title = 'Verification Started';
+            } else if (message.toLowerCase().includes('verdict')) {
+                icon = 'clipboard-check';
+                title = 'Finalizing Results';
+            }
+
+            if (isError) {
+                icon = 'exclamation-triangle';
+                title = 'Error';
+            }
+
+            const iconSVG = getIconSVG(icon);
+
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'process-step active';
+            stepDiv.innerHTML = `
+                <div class="step-header">
+                    ${iconSVG}
+                    <span>${title}</span>
+                </div>
+                <div class="step-message">${escapeHtml(message)}</div>
+            `;
+
+            // Remove active class from previous steps
+            const prevActive = processTimeline.querySelector('.process-step.active');
+            if (prevActive) prevActive.classList.remove('active');
+
+            processTimeline.appendChild(stepDiv);
+
+            // Auto-scroll to latest step
+            setTimeout(() => {
+                stepDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        function showResult(result) {
+            resetButton();
+            resultCard.classList.remove('hidden');
+
+            // Update status badge
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge) {
+                statusBadge.innerHTML = `
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Complete
+                `;
+                statusBadge.style.background = 'var(--success-50)';
+                statusBadge.style.color = 'var(--success-700)';
+                statusBadge.style.borderColor = 'var(--success-200)';
+            }
+
+            // Verdict
+            const verdict = result.verdict || 'UNKNOWN';
+            verdictBadge.textContent = verdict;
+            verdictBadge.className = `verdict-badge verdict-${verdict}`;
+
+            // Justification
+            let justify = result.justification || 'No justification provided.';
+            justify = justify
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+                .replace(/\n/g, '<br>');
+            justificationText.innerHTML = justify;
+
+            // Evidence
+            evidenceList.innerHTML = '';
+            const evidences = result.evidences || [];
+
+            if (evidences.length === 0) {
+                evidenceList.innerHTML = '<li class="evidence-card">No specific evidence cited.</li>';
+            } else {
+                evidences.forEach(evObj => {
+                    const li = document.createElement('li');
+                    li.className = 'evidence-card';
+
+                    const content = typeof evObj === 'string' ? evObj : evObj.text;
+                    const url = typeof evObj === 'object' ? evObj.url : null;
+                    const title = typeof evObj === 'object' ? evObj.title : null;
+
+                    const cleanContent = content.replace(/\*\*/g, '').replace(/### Evidence from `[^`]+`\n/g, '');
+
+                    let html = '';
+                    if (title) {
+                        html += `<div style="font-weight: 600; color: var(--neutral-900); margin-bottom: var(--spacing-xs);">${escapeHtml(title)}</div>`;
+                    }
+                    html += `<div class="evidence-text">${escapeHtml(cleanContent)}</div>`;
+
+                    if (url) {
+                        html += `
+                            <a href="${escapeHtml(url)}" target="_blank" class="evidence-link">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                                <span>${escapeHtml(url)}</span>
+                            </a>
+                        `;
+                    }
+
+                    li.innerHTML = html;
+                    evidenceList.appendChild(li);
+                });
+            }
+
+            // Scroll to result
+            setTimeout(() => {
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+
+        function resetButton() {
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = `
+                <span>Verify Another Claim</span>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+            `;
+            document.getElementById('resetBtn').style.display = 'inline-flex';
+        }
+
+        function resetForm() {
+            // Clear input
+            claimInput.value = '';
+
+            // Hide all cards
+            processCard.classList.add('hidden');
+            resultCard.classList.add('hidden');
+
+            // Reset button states
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = `
+                <span>Verify Claim</span>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+            `;
+            document.getElementById('resetBtn').style.display = 'none';
+
+            // Clear content
+            processTimeline.innerHTML = '';
+            evidenceList.innerHTML = '';
+            justificationText.innerHTML = '';
+            verdictBadge.textContent = '';
+
+            // Focus on input
+            claimInput.focus();
+        }
+
+        function getIconSVG(icon) {
+            const icons = {
+                'cog': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>',
+                'search': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>',
+                'globe': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                'chat': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>',
+                'check-circle': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                'clipboard-check': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>',
+                'exclamation-triangle': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>'
+            };
+            return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">${icons[icon] || icons['cog']}</svg>`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Allow Enter+Ctrl to submit
+        claimInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                checkClaim();
+            }
+        });
+    </script>
+</body>
+
+</html>

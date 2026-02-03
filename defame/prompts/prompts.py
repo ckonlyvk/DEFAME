@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Collection, Optional
 
 from defame.common import Report, Label, Claim, Action, Prompt, Content, logger
+from config.globals import working_dir
 from defame.common.action import get_action_documentation
 from defame.common.label import DEFAULT_LABEL_DEFINITIONS
 from defame.evidence_retrieval.integrations.search.common import Source
@@ -17,7 +18,7 @@ NOT_SYMBOL = 'Unimportant'
 
 
 class JudgePrompt(Prompt):
-    template_file_path = "defame/prompts/judge.md"
+    template_file_path = working_dir / "defame/prompts/judge.md"
     retry_instruction = ("(Do not forget to choose one option from Decision Options "
                          "and enclose it in backticks like `this`)")
 
@@ -46,7 +47,7 @@ class JudgePrompt(Prompt):
 
 
 class DecontextualizePrompt(Prompt):
-    template_file_path = "defame/prompts/decontextualize.md"
+    template_file_path = working_dir / "defame/prompts/decontextualize.md"
 
     def __init__(self, claim: Claim):
         placeholder_targets = {
@@ -66,14 +67,14 @@ class FilterCheckWorthyPrompt(Prompt):
             "[CONTEXT]": claim.context,
         }
         if filter_method == "custom":
-            self.template_file_path = "defame/prompts/custom_checkworthy.md"
+            self.template_file_path = working_dir / "defame/prompts/custom_checkworthy.md"
         else:
-            self.template_file_path = "defame/prompts/default_checkworthy.md"
+            self.template_file_path = working_dir / "defame/prompts/default_checkworthy.md"
         super().__init__(placeholder_targets=placeholder_targets)
 
 
 class SummarizeSourcePrompt(Prompt):
-    template_file_path = "defame/prompts/summarize_source.md"
+    template_file_path = working_dir / "defame/prompts/summarize_source.md"
 
     def __init__(self, source: Source, doc: Report):
         placeholder_targets = {
@@ -84,7 +85,7 @@ class SummarizeSourcePrompt(Prompt):
 
 
 class SummarizeManipulationResultPrompt(Prompt):
-    template_file_path = "defame/prompts/summarize_manipulation_result.md"
+    template_file_path = working_dir / "defame/prompts/summarize_manipulation_result.md"
 
     def __init__(self, manipulation_result: Results):
         placeholder_targets = {
@@ -94,14 +95,14 @@ class SummarizeManipulationResultPrompt(Prompt):
 
 
 class SummarizeDocPrompt(Prompt):
-    template_file_path = "defame/prompts/summarize_doc.md"
+    template_file_path = working_dir / "defame/prompts/summarize_doc.md"
 
     def __init__(self, doc: Report):
         super().__init__(placeholder_targets={"[DOC]": doc})
 
 
 class PlanPrompt(Prompt):
-    template_file_path = "defame/prompts/plan.md"
+    template_file_path = working_dir / "defame/prompts/plan.md"
 
     def __init__(self, doc: Report,
                  valid_actions: Collection[type[Action]],
@@ -153,9 +154,9 @@ class PoseQuestionsPrompt(Prompt):
             "[N_QUESTIONS]": n_questions
         }
         if interpret:
-            self.template_file_path = "defame/prompts/pose_questions.md"
+            self.template_file_path = working_dir / "defame/prompts/pose_questions.md"
         else:
-            self.template_file_path = "defame/prompts/pose_questions_no_interpretation.md"
+            self.template_file_path = working_dir / "defame/prompts/pose_questions_no_interpretation.md"
         super().__init__(placeholder_targets=placeholder_targets)
 
     def extract(self, response: str) -> dict:
@@ -168,7 +169,7 @@ class PoseQuestionsPrompt(Prompt):
 
 class ProposeQueries(Prompt):
     """Used to generate queries to answer AVeriTeC questions."""
-    template_file_path = "defame/prompts/propose_queries.md"
+    template_file_path = working_dir / "defame/prompts/propose_queries.md"
 
     def __init__(self, question: str, doc: Report):
         placeholder_targets = {
@@ -187,7 +188,7 @@ class ProposeQueries(Prompt):
 
 class ProposeQuerySimple(Prompt):
     """Used to generate queries to answer AVeriTeC questions."""
-    template_file_path = "defame/prompts/propose_query_simple.md"
+    template_file_path = working_dir / "defame/prompts/propose_query_simple.md"
 
     def __init__(self, question: str):
         placeholder_targets = {
@@ -205,7 +206,7 @@ class ProposeQuerySimple(Prompt):
 
 class ProposeQueriesNoQuestions(Prompt):
     """Used to generate queries to answer AVeriTeC questions."""
-    template_file_path = "defame/prompts/propose_queries_no_questions.md"
+    template_file_path = working_dir / "defame/prompts/propose_queries_no_questions.md"
 
     def __init__(self, doc: Report):
         placeholder_targets = {
@@ -223,7 +224,7 @@ class ProposeQueriesNoQuestions(Prompt):
 
 class AnswerCollectively(Prompt):
     """Used to generate answers to the AVeriTeC questions."""
-    template_file_path = "defame/prompts/answer_question_collectively.md"
+    template_file_path = working_dir / "defame/prompts/answer_question_collectively.md"
 
     def __init__(self, question: str, results: list[Source], doc: Report):
         result_strings = [f"## Result `{i}`\n{str(result)}" for i, result in enumerate(results)]
@@ -260,7 +261,7 @@ class AnswerCollectively(Prompt):
 
 class AnswerQuestion(Prompt):
     """Used to generate answers to the AVeriTeC questions."""
-    template_file_path = "defame/prompts/answer_question.md"
+    template_file_path = working_dir / "defame/prompts/answer_question.md"
 
     def __init__(self, question: str, result: Source, doc: Report):
         placeholder_targets = {
@@ -288,7 +289,7 @@ class AnswerQuestion(Prompt):
 
 class AnswerQuestionNoEvidence(Prompt):
     """Used to generate answers to the AVeriTeC questions."""
-    template_file_path = "defame/prompts/answer_question_no_evidence.md"
+    template_file_path = working_dir / "defame/prompts/answer_question_no_evidence.md"
 
     def __init__(self, question: str, doc: Report):
         placeholder_targets = {
@@ -299,7 +300,7 @@ class AnswerQuestionNoEvidence(Prompt):
 
 
 class DevelopPrompt(Prompt):
-    template_file_path = "defame/prompts/develop.md"
+    template_file_path = working_dir / "defame/prompts/develop.md"
 
     def __init__(self, doc: Report):
         placeholder_targets = {"[DOC]": doc}
@@ -307,7 +308,7 @@ class DevelopPrompt(Prompt):
 
 
 class InterpretPrompt(Prompt):
-    template_file_path = "defame/prompts/interpret.md"
+    template_file_path = working_dir / "defame/prompts/interpret.md"
 
     def __init__(self, content: Content, guidelines: str = None):
         placeholder_targets = {
@@ -329,7 +330,7 @@ class InterpretPrompt(Prompt):
 
 
 class DecomposePrompt(Prompt):
-    template_file_path = "defame/prompts/decompose.md"
+    template_file_path = working_dir / "defame/prompts/decompose.md"
 
     def __init__(self, content: Content):
         self.content = content
@@ -346,7 +347,7 @@ class DecomposePrompt(Prompt):
 
 
 class JudgeNaively(Prompt):
-    template_file_path = "defame/prompts/judge_naive.md"
+    template_file_path = working_dir / "defame/prompts/judge_naive.md"
 
     def __init__(self, claim: Claim,
                  classes: Collection[Label],
@@ -368,11 +369,11 @@ class JudgeNaively(Prompt):
 
 
 class JudgeMinimal(JudgeNaively):
-    template_file_path = "defame/prompts/judge_minimal.md"
+    template_file_path = working_dir / "defame/prompts/judge_minimal.md"
 
 
 class InitializePrompt(Prompt):
-    template_file_path = "defame/prompts/initialize.md"
+    template_file_path = working_dir / "defame/prompts/initialize.md"
 
     def __init__(self, claim: Claim):
         placeholder_targets = {
@@ -382,7 +383,7 @@ class InitializePrompt(Prompt):
 
 
 def load_exemplars(valid_actions: Collection[type[Action]]) -> str:
-    exemplars_dir = Path("defame/prompts/plan_exemplars")
+    exemplars_dir = working_dir / "defame/prompts/plan_exemplars"
     exemplar_paths = []
     for a in valid_actions:
         exemplar_path = exemplars_dir / f"{a.name}.md"

@@ -28,26 +28,26 @@ class FactChecker:
     default_procedure = "defame"
 
     def __init__(self,
-                 llm: str | Model = "gpt_4o_mini",
-                 llm_kwargs: dict = None,
-                 tools: list[Tool] = None,
-                 tools_config: dict = None,
-                 available_actions: list[Action] = None,
-                 procedure_variant: str = None,
-                 interpret: bool = False,
-                 decompose: bool = False,
-                 decontextualize: bool = False,
-                 filter_check_worthy: bool = False,
-                 max_iterations: int = 5,
-                 max_result_len: int = None,
-                 restrict_results_to_claim_date: bool = True,
-                 allow_fact_checking_sites: bool = True,
-                 classes: Sequence[Label] = None,
-                 class_definitions: dict[Label, str] = None,
-                 extra_prepare_rules: str = None,
-                 extra_plan_rules: str = None,
-                 extra_judge_rules: str = None,
-                 device: str = None):
+                 llm: str | Model = "gpt_4o_mini",  # Mô hình ngôn ngữ sẽ sử dụng
+                 llm_kwargs: dict = None,  # Các tham số khởi tạo cho mô hình
+                 tools: list[Tool] = None,  # Danh sách các công cụ đã khởi tạo
+                 tools_config: dict = None,  # Cấu hình để khởi tạo công cụ nếu tools chưa có
+                 available_actions: list[Action] = None,  # Danh sách các hành động (Action) khả dụng
+                 procedure_variant: str = None,  # Biến thể quy trình kiểm chứng (procedure) sẽ chạy
+                 interpret: bool = False,  # Có thực hiện bước diễn giải (interpret) claim hay không
+                 decompose: bool = False,  # Có chia nhỏ (decompose) claim phức tạp hay không
+                 decontextualize: bool = False,  # Có tách ngữ cảnh (decontextualize) cho claim hay không
+                 filter_check_worthy: bool = False,  # Có lọc các claim đáng kiểm chứng hay không
+                 max_iterations: int = 5,  # Số vòng lặp tối đa cho quá trình kiểm chứng
+                 max_result_len: int = None,  # Độ dài tối đa của kết quả trả về
+                 restrict_results_to_claim_date: bool = True,  # Giới hạn tìm kiếm thông tin trước ngày diễn ra claim
+                 allow_fact_checking_sites: bool = True,  # Cho phép sử dụng thông tin từ các trang fact-check khác
+                 classes: Sequence[Label] = None,  # Danh sách các nhãn kết luận (VD: SUPPORTED, REFUTED)
+                 class_definitions: dict[Label, str] = None,  # Định nghĩa chi tiết cho từng nhãn
+                 extra_prepare_rules: str = None,  # Các quy tắc bổ sung cho bước chuẩn bị (extract claim)
+                 extra_plan_rules: str = None,  # Các quy tắc bổ sung cho bước lập kế hoạch (planner)
+                 extra_judge_rules: str = None,  # Các quy tắc bổ sung cho bước đánh giá (judge)
+                 device: str = None):  # Thiết bị tính toán (VD: 'cuda', 'cpu')
 
         if tools_config is None:
             tools_config = dict(searcher=None)

@@ -15,7 +15,7 @@ from openai import OpenAI
 from transformers import pipeline, MllamaForConditionalGeneration, AutoProcessor, StoppingCriteria, \
     StoppingCriteriaList, Pipeline, Llama4ForConditionalGeneration
 
-from config.globals import api_keys
+from config.globals import api_keys, working_dir, result_base_dir
 from defame.common import logger
 from defame.common.prompt import Prompt
 from defame.utils.console import bold
@@ -36,7 +36,7 @@ We use a specific media reference notation format. Images are referred to as
 Each medium reference is then followed by the corresponding base64 data. Use the reference notation if you want to
 refer to any media in your response."""
 
-AVAILABLE_MODELS = pd.read_csv("config/available_models.csv", skipinitialspace=True)
+AVAILABLE_MODELS = pd.read_csv(working_dir / "config/available_models.csv", skipinitialspace=True)
 
 
 def model_specifier_to_shorthand(specifier: str) -> str:

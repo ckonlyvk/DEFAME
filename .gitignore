@@ -29,6 +29,11 @@ MANIFEST
 out/
 *Dockerfile_42
 /config/google_service_account_key.json
+/config/api_keys.yaml
+/config/globals.py
 
 .idea/
 **/.DS_Store
+
+.agent/
+.vscode/
