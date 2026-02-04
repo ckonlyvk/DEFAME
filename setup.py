@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="defame",
     version="0.1.0",
-    packages=find_packages(),
+    packages=find_packages() + ['config'],  # Include config package
     install_requires=[
         "ezmm",
         "pydantic",

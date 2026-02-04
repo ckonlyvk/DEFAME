@@ -6,6 +6,7 @@ from .newsclippings.benchmark import NewsCLIPpings
 from .dgm4.benchmark import DGM4
 from .mocheg.benchmark import MOCHEG
 from .claimreview2024.benchmark import ClaimReview2024
+from .vifactcheck.benchmark import ViFactCheck
 
 BENCHMARK_REGISTRY = {
     AVeriTeC,
@@ -15,6 +16,7 @@ BENCHMARK_REGISTRY = {
     DGM4,
     MOCHEG,
     ClaimReview2024,
+    ViFactCheck,
 }
 
 
