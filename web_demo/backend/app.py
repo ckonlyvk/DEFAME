@@ -1,10 +1,8 @@
 
 import asyncio
 import json
-import logging
 import queue
 import threading
-from typing import Any, Dict
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,37 +43,14 @@ async def read_index():
 class CheckRequest(BaseModel):
     claim: str
 
-class QueueHandler(logging.Handler):
-    """Logging handler that sends logs to a queue."""
-    def __init__(self, q: queue.Queue):
-        super().__init__()
-        self.q = q
 
-    def emit(self, record):
-        try:
-            msg = self.format(record)
-            # Send as a log event
-            self.q.put({"status_message": msg})
-        except Exception:
-            self.handleError(record)
 
 def run_fact_check(claim_text: str, q: queue.Queue):
     """Runs the fact check in a separate thread."""
     
-    # Setup custom handler to intercept ALL mafc logs
-    # We use 'mafc' logger as defined in defame/common/logger.py
-    mafc_logger = logging.getLogger('mafc')
-    # Remove existing handlers to avoid double printing if needed, or just add ours
-    # For this demo, adding ours is fine.
-    
-    # We need a formatter
-    formatter = logging.Formatter('%(message)s')
-    
-    q_handler = QueueHandler(q)
-    q_handler.setFormatter(formatter)
-    q_handler.setLevel(logging.INFO) # Capture INFO and above (including our thinking steps)
-    
-    mafc_logger.addHandler(q_handler)
+    # Setup StageEmitter to send structured events
+    from defame.common import StageEmitter
+    StageEmitter.set_queue(q)
     
     try:
         # Initialize experiment dir to avoid accessing None in logger.target_dir
@@ -88,10 +63,9 @@ def run_fact_check(claim_text: str, q: queue.Queue):
              working_dir = pathlib.Path(__file__).parent.parent.parent
         
         logger.set_experiment_dir(path=result_base_dir / "web_demo")
-        # We don't need set_connection anymore since we hook into logging directly
         
         # Initialize FactChecker
-        fact_checker = FactChecker(llm="gpt_4o", procedure_variant="infact")
+        fact_checker = FactChecker(llm="gpt_4o", procedure_variant="vifactcheck")
         
         # Run check
         # Fix: check_content returns 3 values: (veracity, docs, metas)
@@ -143,13 +117,11 @@ def run_fact_check(claim_text: str, q: queue.Queue):
         q.put({"status_message": "DONE", "result": final_payload})
 
     except Exception as e:
-        logger.error(f"Error during fact check: {e}") 
-        # The logger.error above will be caught by our handler and sent as log
-        # But we also want to send an explicit error event to stop frontend
+        logger.error(f"Error during fact check: {e}")
         q.put({"status_message": "ERROR", "error": str(e)})
     finally:
-        # Cleanup handler
-        mafc_logger.removeHandler(q_handler)
+        # Cleanup StageEmitter
+        StageEmitter.set_queue(None)
 
 
 @app.post("/api/check")
@@ -171,12 +143,24 @@ async def check_claim(request: CheckRequest):
                 
                 # Check for completion or special messages
                 if isinstance(data, dict):
+                    event_type = data.get("type", "")
+                    
+                    # Handle final result
                     if data.get("status_message") == "DONE":
                         yield f"event: result\ndata: {json.dumps(data['result'])}\n\n"
                         break
                     elif data.get("status_message") == "ERROR":
                         yield f"event: error\ndata: {json.dumps(data)}\n\n"
                         break
+                    
+                    # Handle structured stage events from StageEmitter
+                    elif event_type == "stage":  # Changed from "step" to "stage"
+                        yield f"event: step\ndata: {json.dumps(data)}\n\n"  # Still send as "step" event to frontend
+                    elif event_type == "stage_update":  # Changed from "step_update" to "stage_update"
+                        yield f"event: step_update\ndata: {json.dumps(data)}\n\n"
+                    elif event_type == "log":
+                        # Regular log message
+                        yield f"event: log\ndata: {json.dumps(data)}\n\n"
                     else:
                         # Normal log message structure from logger.send() is dict(task_id=..., status_message=...)
                         msg = data.get("status_message", "")

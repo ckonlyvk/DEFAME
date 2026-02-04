@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Fact-Checking Agent</title>
+    <title>Công cụ Kiểm chứng Tin tức</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -183,20 +183,42 @@
 
         /* Tool Call Section */
         .tool-call {
-            background: var(--tool-bg);
+            background: var(--bg-white);
             border: 1px solid var(--tool-border);
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-top: 1rem;
+            margin-top: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .tool-call:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .tool-call.tool-info {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .tool-call.tool-success {
+            border-left: 3px solid var(--success-text);
+        }
+
+        .tool-call.tool-error {
+            border-left: 3px solid var(--danger-text);
+        }
+
+        .tool-call.tool-warning {
+            border-left: 3px solid var(--warning-text);
         }
 
         .tool-header {
-            padding: 0.75rem 1rem;
+            padding: 0.875rem 1rem;
             font-size: 0.875rem;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: var(--text-primary);
             display: flex;
-            justify-content: space-between;
+            gap: 0.75rem;
             align-items: center;
             cursor: pointer;
             user-select: none;
@@ -207,11 +229,62 @@
             background: rgba(0, 0, 0, 0.02);
         }
 
+        .tool-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .tool-info .tool-icon {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .tool-success .tool-icon {
+            color: var(--success-text);
+            background: var(--success-bg);
+        }
+
+        .tool-error .tool-icon {
+            color: var(--danger-text);
+            background: var(--danger-bg);
+        }
+
+        .tool-warning .tool-icon {
+            color: var(--warning-text);
+            background: var(--warning-bg);
+        }
+
+        .tool-label {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+
+        .tool-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .tool-summary {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
         .tool-arrow {
             transition: transform 0.3s ease;
             width: 16px;
             height: 16px;
             stroke: var(--text-secondary);
+            flex-shrink: 0;
         }
 
         .tool-call.collapsed .tool-arrow {
@@ -224,14 +297,55 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8125rem;
             color: var(--text-secondary);
-            line-height: 1.5;
+            line-height: 1.6;
             max-height: 400px;
             overflow-y: auto;
-            transition: max-height 0.3s ease;
+            background: var(--tool-bg);
+        }
+
+        .tool-content pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .tool-call.collapsed .tool-content {
             display: none;
+        }
+
+        /* ANSI Color Styles */
+        .ansi-green {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+
+        .ansi-yellow {
+            color: #f57c00;
+            font-weight: 500;
+        }
+
+        .ansi-red {
+            color: #c62828;
+            font-weight: 500;
+        }
+
+        .ansi-blue {
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        .ansi-magenta {
+            color: #7b1fa2;
+            font-weight: 500;
+        }
+
+        .ansi-cyan {
+            color: #0097a7;
+            font-weight: 500;
+        }
+
+        .ansi-reset {
+            color: inherit;
         }
 
         /* Processing Indicator */
@@ -258,6 +372,146 @@
                 transform: rotate(360deg);
             }
         }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+            }
+        }
+
+        @keyframes pulse-border {
+
+            0%,
+            100% {
+                border-left-width: 3px;
+            }
+
+            50% {
+                border-left-width: 5px;
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Step-based Progress UI */
+        .steps-container {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .step-item.running {
+            border-left-color: var(--assistant-icon);
+            background: rgba(245, 158, 11, 0.05);
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+
+        .step-item.complete {
+            border-left-color: var(--success-text);
+            background: rgba(46, 125, 50, 0.05);
+        }
+
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .step-item.running .step-icon {
+            background: var(--assistant-icon);
+            color: white;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* Ripple effect for running icon */
+        .step-item.running .step-icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--assistant-icon);
+            opacity: 0.4;
+            animation: ripple 2s ease-out infinite;
+        }
+
+        .step-item.complete .step-icon {
+            background: var(--success-text);
+            color: white;
+        }
+
+        .step-icon.spinner-icon {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-detail {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            white-space: pre-wrap;
+            /* Preserve line breaks and formatting */
+            word-wrap: break-word;
+            /* Break long URLs */
+        }
+
+        .step-result {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
 
         /* Result Section */
         .result-section {
@@ -571,7 +825,7 @@
 
 <body>
     <header>
-        <h1>News Fact-Checking Agent</h1>
+        <h1>ViFactCheck</h1>
     </header>
 
     <div class="chat-container" id="chatContainer">
@@ -584,21 +838,23 @@
                     </path>
                 </svg>
             </div>
-            <h2 class="empty-title">Welcome to Fact-Checking Agent</h2>
+            <h2 class="empty-title">Chào mừng đến với ViFactCheck</h2>
             <p class="empty-description">
-                Ask me to verify any news or claim. I'll search multiple sources and provide you with a detailed
-                analysis.
+                Hãy nhập bất kỳ tin tức hoặc tuyên bố nào cần kiểm chứng. Tôi sẽ tìm kiếm nhiều nguồn và cung cấp cho
+                bạn phân tích chi tiết.
             </p>
             <div class="example-questions">
-                <div class="example-card" onclick="fillExample('Is Lionel Messi 25 years old in 2025?')">
-                    Is Lionel Messi 25 years old in 2025?
+                <div class="example-card" onclick="fillExample('Lionel Messi có 25 tuổi vào năm 2025 không?')">
+                    Lionel Messi có 25 tuổi vào năm 2025 không?
                 </div>
                 <div class="example-card"
-                    onclick="fillExample('Is VNG the first Vietnamese tech company listed on NASDAQ?')">
-                    Is VNG the first Vietnamese tech company listed on NASDAQ?
+                    onclick="fillExample('NASA có xác nhận Mặt Trăng được làm từ phô mai không?')">
+                    NASA có xác nhận Mặt Trăng được làm từ phô mai không?
                 </div>
-                <div class="example-card" onclick="fillExample('Did NASA confirm that the moon is made of cheese?')">
-                    Did NASA confirm that the moon is made of cheese?
+                <div class="example-card"
+                    onclick="fillExample('VNG có phải là công ty công nghệ đầu tiên của Việt Nam được niêm yết trên sàn chứng khoán NASDAQ không?')">
+                    VNG có phải là công ty công nghệ đầu tiên của Việt Nam được niêm yết trên sàn chứng khoán NASDAQ
+                    không?
                 </div>
             </div>
         </div>
@@ -608,7 +864,7 @@
     <div class="input-section">
         <div class="input-wrapper">
             <input type="text" id="claimInput" class="input-field"
-                placeholder="Enter your question about news or facts:" autocomplete="off">
+                placeholder="Nhập câu hỏi về tin tức hoặc sự kiện cần kiểm chứng..." autocomplete="off">
             <button class="send-button" id="sendButton" onclick="submitClaim()">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -625,6 +881,8 @@
 
         let currentToolCalls = [];
         let processingElement = null;
+        let currentAssistantContent = null; // Track the current assistant message content
+        let messageCounter = 0; // Counter for unique message IDs
 
         function fillExample(text) {
             claimInput.value = text;
@@ -678,64 +936,203 @@
         }
 
         function addAssistantMessage() {
+            // Reset state for new message
+            messageCounter++;
+            processingElement = null;
+            stepsContainer = null;
+            stepMap = new Map();
+
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message assistant-message';
-            messageDiv.id = 'assistantMessage';
+            messageDiv.id = `assistantMessage-${messageCounter}`;
             messageDiv.innerHTML = `
                 <div class="message-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                     </svg>
                 </div>
-                <div class="message-content" id="assistantContent">
-                    <div class="plan-section">
-                        <div class="plan-title">Here's my step-by-step plan:</div>
-                        <ol>
-                            <li>Decide on search terms based on the statement.</li>
-                            <li>Decide on the sources to check for information (at least 5 sources).</li>
-                            <li>Search for the relevant information from the sources one by one.</li>
-                            <li>Summarize the findings and generate a markdown report.</li>
-                        </ol>
-                    </div>
+                <div class="message-content" id="assistantContent-${messageCounter}">
                 </div>
             `;
             chatContainer.appendChild(messageDiv);
+
+            // Store reference to the current assistant content
+            currentAssistantContent = messageDiv.querySelector('.message-content');
+
             scrollToBottom();
         }
 
+        function parseAnsiCodes(text) {
+            // First escape HTML
+            let result = escapeHtml(text);
+
+            // Remove all ANSI escape sequences (starting with ESC or \033 or \x1b)
+            // This handles complex sequences like cursor movement, RGB colors, etc.
+            result = result.replace(/\x1b\[[0-9;]*m/g, '');
+            result = result.replace(/\033\[[0-9;]*m/g, '');
+
+            // Map simple ANSI codes to CSS classes
+            const ansiMap = {
+                '[93m': '<span class="ansi-yellow">',
+                '[92m': '<span class="ansi-green">',
+                '[91m': '<span class="ansi-red">',
+                '[94m': '<span class="ansi-blue">',
+                '[95m': '<span class="ansi-magenta">',
+                '[96m': '<span class="ansi-cyan">',
+                '[39m': '</span>',
+                '[0m': '</span>'
+            };
+
+            for (const [code, replacement] of Object.entries(ansiMap)) {
+                result = result.split(code).join(replacement);
+            }
+
+            // Remove any remaining ANSI-like patterns including RGB colors
+            // Pattern like [38;2;R;G;Bm or [48;2;R;G;Bm
+            result = result.replace(/\[38;2;\d+;\d+;\d+m/g, '');
+            result = result.replace(/\[48;2;\d+;\d+;\d+m/g, '');
+            // Generic pattern for any remaining [number;...m sequences
+            result = result.replace(/\[\d+(;\d+)*m/g, '');
+
+            return result;
+        }
+
+        function categorizeMessage(message) {
+            const lowerMsg = message.toLowerCase();
+
+            // Error patterns
+            if (lowerMsg.includes('error') || lowerMsg.includes('exception') ||
+                lowerMsg.includes('failed') || lowerMsg.includes('traceback') ||
+                lowerMsg.includes('[91m') || /ssl.*error/i.test(message)) {
+                return 'error';
+            }
+
+            // Success patterns
+            if (lowerMsg.includes('complete') || lowerMsg.includes('success') ||
+                lowerMsg.includes('verified') || lowerMsg.includes('[92m') ||
+                /is (supported|refuted)/i.test(message)) {
+                return 'success';
+            }
+
+            // Warning patterns
+            if (lowerMsg.includes('warning') || lowerMsg.includes('retry') ||
+                lowerMsg.includes('[93m') || lowerMsg.includes('timeout')) {
+                return 'warning';
+            }
+
+            return 'info';
+        }
+
+        function generateSummary(message, type) {
+            // Try to extract meaningful summary
+            const lines = message.split('\n').filter(l => l.trim());
+
+            if (type === 'error') {
+                // Extract error type
+                const errorMatch = message.match(/(Error|Exception):\s*(.+)/i);
+                if (errorMatch) {
+                    return 'Lỗi: ' + errorMatch[2].substring(0, 80);
+                }
+                if (message.includes('SSL')) {
+                    return 'Lỗi kết nối SSL';
+                }
+                return 'Đã xảy ra lỗi trong quá trình xử lý';
+            }
+
+            if (type === 'success') {
+                if (message.includes('refuted')) {
+                    return 'Đã bác bỏ tuyên bố';
+                }
+                if (message.includes('supported')) {
+                    return 'Đã xác nhận tuyên bố';
+                }
+                return 'Thực hiện thành công';
+            }
+
+            if (type === 'warning') {
+                return 'Cảnh báo: ' + (lines[0] || 'Có vấn đề cần lưu ý').substring(0, 80);
+            }
+
+            // For info, try to extract action
+            const claimMatch = message.match(/Claim:\s*"([^"]+)"/i);
+            if (claimMatch) {
+                return 'Đang kiểm chứng: ' + claimMatch[1].substring(0, 60) + '...';
+            }
+
+            if (message.includes('Verifying claim')) {
+                return 'Đang kiểm chứng tuyên bố';
+            }
+
+            if (message.includes('Asking question')) {
+                return 'Đặt câu hỏi kiểm chứng';
+            }
+
+            // Default to first meaningful line
+            const firstLine = lines.find(l => l.length > 10) || lines[0] || message;
+            return firstLine.substring(0, 80) + (firstLine.length > 80 ? '...' : '');
+        }
+
+        function getToolIcon(type) {
+            const icons = {
+                'info': 'ℹ️',
+                'success': '✓',
+                'error': '✕',
+                'warning': '⚠'
+            };
+            return icons[type] || 'ℹ️';
+        }
+
+        function getToolTitle(type) {
+            const titles = {
+                'info': 'Thông tin',
+                'success': 'Thành công',
+                'error': 'Lỗi',
+                'warning': 'Cảnh báo'
+            };
+            return titles[type] || 'Công cụ';
+        }
+
         function addToolCall(message) {
-            const assistantContent = document.getElementById('assistantContent');
-            if (!assistantContent) return;
+            if (!currentAssistantContent) return;
+
+            const type = categorizeMessage(message);
+            const summary = generateSummary(message, type);
+            const icon = getToolIcon(type);
+            const title = getToolTitle(type);
+            const formattedContent = parseAnsiCodes(message);
 
             const toolDiv = document.createElement('div');
-            toolDiv.className = 'tool-call collapsed';
-            const toolId = 'tool-' + Date.now();
+            toolDiv.className = `tool-call tool-${type} collapsed`;
+            const toolId = 'tool-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
             toolDiv.id = toolId;
             toolDiv.innerHTML = `
                 <div class="tool-header" onclick="toggleTool('${toolId}')">
-                    <span>Tool Call</span>
+                    <div class="tool-icon">${icon}</div>
+                    <div class="tool-label">
+                        <div class="tool-title">${title}</div>
+                        <div class="tool-summary">${summary}</div>
+                    </div>
                     <svg class="tool-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </div>
-                <div class="tool-content">${escapeHtml(message)}</div>
+                <div class="tool-content"><pre>${formattedContent}</pre></div>
             `;
-            assistantContent.appendChild(toolDiv);
+            currentAssistantContent.appendChild(toolDiv);
             scrollToBottom();
         }
 
         function addProcessing() {
-            const assistantContent = document.getElementById('assistantContent');
-            if (!assistantContent) return;
+            if (!currentAssistantContent) return;
 
             processingElement = document.createElement('div');
             processingElement.className = 'processing';
             processingElement.id = 'processingIndicator';
             processingElement.innerHTML = `
                 <div class="spinner"></div>
-                <span>Processing...</span>
+                <span>Đang xử lý...</span>
             `;
-            assistantContent.appendChild(processingElement);
+            currentAssistantContent.appendChild(processingElement);
             scrollToBottom();
         }
 
@@ -746,11 +1143,105 @@
             }
         }
 
+
+        // Step-based progress UI functions
+        let stepsContainer = null;
+        let stepMap = new Map(); // Maps event id to step element
+
+        function initStepsContainer() {
+            if (!currentAssistantContent || stepsContainer) return;
+
+            stepsContainer = document.createElement('div');
+            stepsContainer.className = 'steps-container';
+            stepsContainer.id = 'stepsContainer';
+            currentAssistantContent.appendChild(stepsContainer);
+        }
+
+        function addStep(stepData) {
+            initStepsContainer();
+
+            // Support both old format (step_id) and new format (id)
+            const eventId = stepData.id || stepData.step_id || Date.now().toString();
+            const status = stepData.status === 'inprogress' ? 'running' : stepData.status;
+
+            const stepDiv = document.createElement('div');
+            stepDiv.className = `step-item ${status}`;
+            stepDiv.id = `step-${eventId}`;
+
+            const iconContent = status === 'running' ?
+                '<div class="spinner-icon"></div>' :
+                '✓';
+
+            stepDiv.innerHTML = `
+                <div class="step-icon">${iconContent}</div>
+                <div class="step-content">
+                    <div class="step-title">${escapeHtml(stepData.title)}</div>
+                    ${stepData.detail ? `<div class="step-detail">${escapeHtml(stepData.detail)}</div>` : ''}
+                </div>
+            `;
+
+            stepsContainer.appendChild(stepDiv);
+            stepMap.set(eventId, stepDiv);
+            scrollToBottom();
+        }
+
+        function updateStep(stepData) {
+            // Support both old format (step_id) and new format (id)
+            const eventId = stepData.id || stepData.step_id;
+            const stepDiv = stepMap.get(eventId);
+            if (!stepDiv) {
+                console.warn('Step not found for update:', eventId);
+                return;
+            }
+
+            // Update status class if provided
+            if (stepData.status) {
+                const status = stepData.status === 'inprogress' ? 'running' : stepData.status;
+                stepDiv.className = `step-item ${status}`;
+
+                // Update icon
+                const iconDiv = stepDiv.querySelector('.step-icon');
+                if (status === 'complete') {
+                    iconDiv.innerHTML = '✓';
+                } else if (status === 'error') {
+                    iconDiv.innerHTML = '✕';
+                }
+            }
+
+            // Update or add detail
+            if (stepData.detail) {
+                const stepContent = stepDiv.querySelector('.step-content');
+                let detailDiv = stepContent.querySelector('.step-detail');
+
+                if (!detailDiv) {
+                    detailDiv = document.createElement('div');
+                    detailDiv.className = 'step-detail';
+                    stepContent.appendChild(detailDiv);
+                }
+                detailDiv.textContent = stepData.detail;
+            }
+
+            // Handle old 'result' field for backward compatibility
+            if (stepData.result) {
+                const stepContent = stepDiv.querySelector('.step-content');
+                let resultDiv = stepContent.querySelector('.step-result');
+                if (!resultDiv) {
+                    resultDiv = document.createElement('div');
+                    resultDiv.className = 'step-result';
+                    stepContent.appendChild(resultDiv);
+                }
+                resultDiv.textContent = stepData.result;
+            }
+
+            scrollToBottom();
+        }
+
+
+
         function showResult(result) {
             removeProcessing();
 
-            const assistantContent = document.getElementById('assistantContent');
-            if (!assistantContent) return;
+            if (!currentAssistantContent) return;
 
             const resultDiv = document.createElement('div');
             resultDiv.className = 'result-section';
@@ -767,7 +1258,7 @@
                 .replace(/\n/g, '<br>');
 
             let justificationHTML = `
-                <div class="section-title">Justification</div>
+                <div class="section-title">Giải trình</div>
                 <div class="justification-text">${justification}</div>
             `;
 
@@ -775,7 +1266,7 @@
             let evidenceHTML = '';
             const evidences = result.evidences || [];
             if (evidences.length > 0) {
-                evidenceHTML = '<div class="section-title">Evidence & References</div><ul class="evidence-grid">';
+                evidenceHTML = '<div class="section-title">Bằng chứng & Tham khảo</div><ul class="evidence-grid">';
                 evidences.forEach(evObj => {
                     const content = typeof evObj === 'string' ? evObj : evObj.text;
                     const url = typeof evObj === 'object' ? evObj.url : null;
@@ -805,7 +1296,7 @@
             }
 
             resultDiv.innerHTML = verdictHTML + justificationHTML + evidenceHTML;
-            assistantContent.appendChild(resultDiv);
+            currentAssistantContent.appendChild(resultDiv);
 
             // Re-enable input
             claimInput.disabled = false;
@@ -848,8 +1339,17 @@
                             if (!dataStr) continue;
                             const data = JSON.parse(dataStr);
 
+                            // Debug logging
+                            console.log('📨 Event received:', eventType, data);
+
                             if (eventType === 'log') {
                                 addToolCall(data.message);
+                            } else if (eventType === 'step') {
+                                console.log('✨ Adding step:', data);
+                                addStep(data);
+                            } else if (eventType === 'step_update') {
+                                console.log('🔄 Updating step:', data);
+                                updateStep(data);
                             } else if (eventType === 'result') {
                                 showResult(data);
                             } else if (eventType === 'error') {
