@@ -47,24 +47,31 @@ class ViFactCheck(VietnameseQABased):
         # Execute searches and gather all results
         search_results = self.retrieve_sources(queries)
         
-        # Emit source information if we have a lit_event
-        if self._current_lit_event and len(search_results) > 0:
-            # Extract URLs from search results
-            source_urls = []
-            for result in search_results:
-                if hasattr(result, 'url') and result.url:
-                    source_urls.append(result.url)
-            
-            # Update with source information
-            if source_urls:
-                urls_text = '\n'.join(f'• {url}' for url in source_urls[:5])  # Show max 5
-                detail_text = f'🔍 Tìm thấy {len(source_urls)} nguồn:\n{urls_text}'
-                if len(source_urls) > 5:
-                    detail_text += f'\n... và {len(source_urls) - 5} nguồn khác'
+        # Emit source information based on what we found
+        if self._current_lit_event:
+            if len(search_results) > 0:
+                # Extract URLs from search results
+                source_urls = []
+                for result in search_results:
+                    if hasattr(result, 'url') and result.url:
+                        source_urls.append(result.url)
                 
+                # Update with source information
+                if source_urls:
+                    urls_text = '\n'.join(f'• {url}' for url in source_urls[:5])  # Show max 5
+                    detail_text = f'🔍 Tìm thấy {len(source_urls)} nguồn:\n{urls_text}'
+                    if len(source_urls) > 5:
+                        detail_text += f'\n... và {len(source_urls) - 5} nguồn khác'
+                    
+                    StageEmitter.update(
+                        self._current_lit_event,
+                        detail=detail_text
+                    )
+            else:
+                # No sources found
                 StageEmitter.update(
                     self._current_lit_event,
-                    detail=detail_text
+                    detail='⚠️ Không tìm thấy tài liệu nào'
                 )
 
         # Step 4: Answer generation

@@ -45,8 +45,14 @@ class CheckRequest(BaseModel):
 
 
 
-def run_fact_check(claim_text: str, q: queue.Queue):
-    """Runs the fact check in a separate thread."""
+def run_fact_check(claim_text: str, q: queue.Queue, stop_event: threading.Event = None):
+    """Runs the fact check in a separate thread.
+    
+    Args:
+        claim_text: The claim to fact-check
+        q: Queue for sending events to the frontend
+        stop_event: Threading event to signal early termination (currently not used due to blocking FactChecker)
+    """
     
     # Setup StageEmitter to send structured events
     from defame.common import StageEmitter
@@ -68,6 +74,8 @@ def run_fact_check(claim_text: str, q: queue.Queue):
         fact_checker = FactChecker(llm="gpt_4o", procedure_variant="vifactcheck")
         
         # Run check
+        # Note: FactChecker.check_content() is blocking and cannot be easily interrupted
+        # The stop_event is accepted but not used - client disconnect only stops event streaming
         # Fix: check_content returns 3 values: (veracity, docs, metas)
         veracity, docs, metas = fact_checker.check_content([claim_text])
         
@@ -125,18 +133,25 @@ def run_fact_check(claim_text: str, q: queue.Queue):
 
 
 @app.post("/api/check")
-async def check_claim(request: CheckRequest):
+async def check_claim(request: CheckRequest, req: Request):
     q = queue.Queue()
+    stop_event = threading.Event()  # Event to signal thread to stop
     
     # Run in a separate thread to not block the event loop
     # Note: Because FactChecker uses shared global state (logger), proper concurrency 
     # control would be needed for a real multi-user app. 
     # For a local demo, we assume one request at a time.
-    t = threading.Thread(target=run_fact_check, args=(request.claim, q))
+    t = threading.Thread(target=run_fact_check, args=(request.claim, q, stop_event))
     t.start()
 
     async def event_generator():
         while True:
+            # Check if client disconnected
+            if await req.is_disconnected():
+                logger.info("Client disconnected, stopping fact check...")
+                stop_event.set()  # Signal the thread to stop
+                break
+                
             try:
                 # Non-blocking get from queue
                 data = q.get_nowait()
