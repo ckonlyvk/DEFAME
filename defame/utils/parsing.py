@@ -189,7 +189,7 @@ def read_md_file(file_path: str | Path) -> str:
     file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"No Markdown file found at '{file_path}'.")
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         return f.read()
 
 

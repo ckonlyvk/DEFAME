@@ -286,7 +286,7 @@ class KnowledgeBase(LocalSearchPlatform):
 def get_contents(file_path) -> list[dict]:
     """Parse the contents of a file. Each line is a JSON encoded document."""
     searches = []
-    with open(file_path) as f:
+    with open(file_path, encoding='utf-8') as f:
         for line in f:
             # Parse document
             doc = json.loads(line)

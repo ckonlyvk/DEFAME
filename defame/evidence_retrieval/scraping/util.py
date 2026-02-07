@@ -15,7 +15,7 @@ MAX_MEDIA_PER_PAGE = 32  # Any media URLs in a webpage exceeding this limit will
 
 
 def read_urls_from_file(file_path):
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         return f.read().splitlines()
 
 
@@ -113,7 +113,7 @@ def resolve_media_hyperlinks(text: str) -> Optional[MultimodalSequence]:
 
 def log_error_url(url: str, message: str):
     error_log_file = temp_dir.parent / "crawl_error_log.txt"
-    with open(error_log_file, "a") as f:
+    with open(error_log_file, "a", encoding="utf-8") as f:
         f.write(f"{url}: {message}\n")
 
 

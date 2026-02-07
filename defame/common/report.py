@@ -83,7 +83,7 @@ class Report:
         report_str = replace_item_refs(report_str, media)
 
         # Save the Markdown file
-        with open(directory / "report.md", "w") as f:
+        with open(directory / "report.md", "w", encoding="utf-8") as f:
             f.write(report_str)
 
         # Save all associated media files in a separate subdirectory

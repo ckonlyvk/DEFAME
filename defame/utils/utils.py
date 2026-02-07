@@ -33,7 +33,7 @@ def load_experiment_parameters(from_dir: str | Path):
 
 
 def load_config(from_path: str | Path):
-    with open(from_path, "r") as f:
+    with open(from_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 

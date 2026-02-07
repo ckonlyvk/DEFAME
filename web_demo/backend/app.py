@@ -71,7 +71,7 @@ def run_fact_check(claim_text: str, q: queue.Queue, stop_event: threading.Event 
         logger.set_experiment_dir(path=result_base_dir / "web_demo")
         
         # Initialize FactChecker
-        fact_checker = FactChecker(llm="gpt_4o", procedure_variant="vifactcheck")
+        fact_checker = FactChecker(llm="ollama_deepseek_cloud", procedure_variant="vifactcheck")
         
         # Run check
         # Note: FactChecker.check_content() is blocking and cannot be easily interrupted
