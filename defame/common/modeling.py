@@ -158,24 +158,18 @@ class DeepSeekAPI:
 
 
 class OllamaAPI:
-    """API wrapper for Ollama (local or cloud)."""
+    """API wrapper for Ollama Cloud."""
     
-    CLOUD_BASE_URL = "https://ollama.com/api"
-    LOCAL_BASE_URL = "http://localhost:11434"
+    BASE_URL = "https://ollama.com/api"
     
-    def __init__(self, model: str, use_cloud: bool = False):
-        self.use_cloud = use_cloud
-        self.base_url = self.CLOUD_BASE_URL if use_cloud else self.LOCAL_BASE_URL
+    def __init__(self, model: str):
+        self.model = model
+        self.base_url = self.BASE_URL
         
-        # Handle cloud model names (remove :cloud suffix for API call)
-        self.model = model.replace(":cloud", "") if ":cloud" in model else model
-        
-        # Get API key for cloud usage
-        self.api_key = None
-        if use_cloud:
-            self.api_key = api_keys.get("ollama_api_key")
-            if not self.api_key:
-                raise ValueError("No Ollama API key provided for cloud usage. Add it to config/api_keys.yaml")
+        # Get API key
+        self.api_key = api_keys.get("ollama_api_key")
+        if not self.api_key:
+            raise ValueError("No Ollama API key provided. Add it to config/api_keys.yaml")
 
     def __call__(self, prompt: Prompt, system_prompt: str, **kwargs):
         url = f"{self.base_url}/chat"
@@ -199,10 +193,11 @@ class OllamaAPI:
             payload["options"] = payload.get("options", {})
             payload["options"]["top_p"] = kwargs["top_p"]
         
-        # Set headers - add Authorization for cloud
-        headers = {"Content-Type": "application/json"}
-        if self.use_cloud and self.api_key:
-            headers["Authorization"] = f"Bearer {self.api_key}"
+        # Set headers with Authorization
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
         
         response = requests.post(url, json=payload, headers=headers)
         
@@ -443,10 +438,8 @@ class OllamaModel(Model):
     accepts_audio = False
 
     def load(self, model_name: str) -> OllamaAPI:
-        use_cloud = ":cloud" in model_name.lower()
-        mode = "cloud (ollama.com)" if use_cloud else "local"
-        logger.info(f"Connecting to Ollama model: {model_name} ({mode}) ...")
-        return OllamaAPI(model=model_name, use_cloud=use_cloud)
+        logger.info(f"Connecting to Ollama Cloud: {model_name} ...")
+        return OllamaAPI(model=model_name)
 
     def _generate(self, prompt: Prompt, temperature: float, top_p: float, top_k: int,
                   system_prompt: str = None) -> str:
