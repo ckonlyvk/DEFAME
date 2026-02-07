@@ -453,19 +453,23 @@ function updateStep(stepData) {
         // Update title/detail if provided (maybe verdict)
         if (stepData.detail) {
             // Check for verdict in the detail text
-            // Verdicts: "ĐƯỢC XÁC NHẬN", "BỊ BÁC BỎ", "CHƯA ĐỦ BẰNG CHỨNG"
+            // Verdicts: "True", "False", "Unknown" (mapped from Vietnamese labels)
             let verdictClass = '';
             let verdictIcon = '';
+            let verdictLabel = '';
 
-            if (stepData.detail.includes('ĐƯỢC XÁC NHẬN')) {
+            if (stepData.detail.includes('ĐƯỢC XÁC NHẬN') || stepData.detail.includes('True') || stepData.detail.includes('Tuyên bố True')) {
                 verdictClass = 'verdict-supported';
                 verdictIcon = '✓';
-            } else if (stepData.detail.includes('BỊ BÁC BỎ')) {
+                verdictLabel = 'True';
+            } else if (stepData.detail.includes('BỊ BÁC BỎ') || stepData.detail.includes('False') || stepData.detail.includes('Tuyên bố False')) {
                 verdictClass = 'verdict-refuted';
                 verdictIcon = '✕';
-            } else if (stepData.detail.includes('CHƯA ĐỦ BẰNG CHỨNG')) {
+                verdictLabel = 'False';
+            } else if (stepData.detail.includes('CHƯA ĐỦ BẰNG CHỨNG') || stepData.detail.includes('Unknown') || stepData.detail.includes('Tuyên bố Unknown')) {
                 verdictClass = 'verdict-nei';
                 verdictIcon = '?';
+                verdictLabel = 'Unknown';
             }
 
             if (verdictClass) {
@@ -475,15 +479,10 @@ function updateStep(stepData) {
                 const iconDiv = groupDiv.querySelector('.claim-group-icon');
                 iconDiv.innerHTML = verdictIcon;
 
-                // Parse verdict for title update
-                if (stepData.detail.includes('Kết luận:')) {
-                    const verdictParts = stepData.detail.split('Kết luận:');
-                    const verdictText = verdictParts[1].trim();
-                    const titleDiv = groupDiv.querySelector('.claim-group-title');
-                    // Keep original title part
-                    const originalTitle = titleDiv.textContent.split('-')[0].trim();
-                    titleDiv.innerHTML = `${originalTitle} - <b>${verdictText}</b>`;
-                }
+                // Update title with verdict label
+                const titleDiv = groupDiv.querySelector('.claim-group-title');
+                const originalTitle = titleDiv.textContent.split(' - ')[0].trim();
+                titleDiv.innerHTML = `${originalTitle} - <b>${verdictLabel}</b>`;
             }
         }
         return;
@@ -582,9 +581,22 @@ function showResult(result) {
     const resultDiv = document.createElement('div');
     resultDiv.className = 'result-section';
 
-    // Verdict
+    // Verdict - Map internal labels to display labels
     const verdict = result.verdict || 'NEI';
-    let verdictHTML = `<div class="verdict-badge verdict-${verdict}">${verdict}</div>`;
+    const verdictDisplayMap = {
+        'SUPPORTED': 'True',
+        'REFUTED': 'False',
+        'NEI': 'Unknown',
+        'supported': 'True',
+        'refuted': 'False',
+        'not enough information': 'Unknown'
+    };
+    const verdictDisplay = verdictDisplayMap[verdict] || verdict;
+    // Use uppercase version for CSS class matching
+    const verdictClass = verdict.toUpperCase() === 'SUPPORTED' || verdict.toLowerCase().includes('supported') ? 'SUPPORTED'
+        : verdict.toUpperCase() === 'REFUTED' || verdict.toLowerCase().includes('refuted') ? 'REFUTED'
+            : 'NEI';
+    let verdictHTML = `<div class="verdict-badge verdict-${verdictClass}">${verdictDisplay}</div>`;
 
     // Justification
     let justification = result.justification || 'No justification provided.';

@@ -155,18 +155,19 @@ class ViFactCheck(VietnameseQABased):
         
         label = self.judge.judge(doc)
         
-        # Map label to Vietnamese
+        # Map label to display text (True/False/Unknown)
+        label_name = label.name if hasattr(label, 'name') else str(label).split('.')[-1]
         verdict_map = {
-            'SUPPORTED': 'được xác nhận',
-            'REFUTED': 'bị bác bỏ',
-            'NEI': 'chưa đủ bằng chứng'
+            'SUPPORTED': 'True',
+            'REFUTED': 'False',
+            'NEI': 'Unknown'
         }
-        verdict_vi = verdict_map.get(str(label), str(label))
+        verdict_display = verdict_map.get(label_name, label_name)
         
         StageEmitter.update(
             conclusion_event,
             status='complete',
-            detail=f'Tuyên bố {verdict_vi} ({label})'
+            detail=f'Tuyên bố {verdict_display}'
         )
 
         return label, dict(q_and_a=q_and_a)
