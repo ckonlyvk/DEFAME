@@ -23,8 +23,10 @@ class Bluesky(RetrievalIntegration):
     def __init__(self, username: str, password: str):
         super().__init__()
         if not username or not password:
-            logger.error("Bluesky username and password must be provided in api_keys.yaml")
-            raise ValueError("Bluesky username and password must be provided in api_keys.yaml")
+            logger.warning("Bluesky username and password not provided - Bluesky integration disabled")
+            self.authenticated = False
+            self.client = None
+            return
 
         self.username = username
         self.password = password
@@ -283,7 +285,14 @@ def error_to_string(error: RequestErrorBase | Exception) -> str:
         return str(error)
 
 
-bluesky = Bluesky(api_keys.get("bluesky_username"), api_keys.get("bluesky_password"))
+# Make Bluesky optional - only initialize if credentials are provided
+_username = api_keys.get("bluesky_username")
+_password = api_keys.get("bluesky_password")
+if _username and _password:
+    bluesky = Bluesky(_username, _password)
+else:
+    bluesky = None
+    logger.warning("Bluesky integration disabled - no credentials provided")
 
 if __name__ == "__main__":
     example_url = "https://bsky.app/profile/mrothermel.bsky.social/post/3ldnyqymqgl2c"

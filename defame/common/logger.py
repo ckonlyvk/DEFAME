@@ -73,7 +73,11 @@ class Logger:
         # Initialize the general logger for standard logs
         self.logger = logging.getLogger('mafc')
         self.logger.propagate = False  # Disable propagation to avoid duplicate logs
-        stdout_handler = logging.StreamHandler(sys.stdout)
+        
+        # Use UTF-8 encoding for stdout to support Unicode (Vietnamese, etc.) on Windows
+        import io
+        utf8_stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+        stdout_handler = logging.StreamHandler(utf8_stdout)
         stdout_handler.setLevel(LOG_LEVELS[self.print_log_level])
         self.logger.addHandler(stdout_handler)
         self.logger.setLevel(logging.DEBUG)
@@ -238,7 +242,7 @@ class Logger:
         hyperparams = {}
         for param in signature.parameters:
             hyperparams[param] = local_scope[param]
-        with open(self.config_path, "w") as f:
+        with open(self.config_path, "w", encoding="utf-8") as f:
             yaml.dump(hyperparams, f)
         if print_summary:
             self.log(bold("Configuration summary:"))
@@ -246,7 +250,7 @@ class Logger:
 
     def _init_predictions_csv(self):
         assert self.experiment_dir is not None
-        with open(self.predictions_path, "w") as f:
+        with open(self.predictions_path, "w", encoding="utf-8") as f:
             csv.writer(f).writerow(("sample_index",
                                     "claim",
                                     "target",
@@ -269,7 +273,7 @@ class Logger:
 
         target_label_str = target.name if target is not None else None
         is_correct = target == predicted if target is not None else None
-        with open(self.predictions_path, "a") as f:
+        with open(self.predictions_path, "a", encoding="utf-8") as f:
             csv.writer(f).writerow((sample_index,
                                     claim,
                                     target_label_str,
@@ -302,7 +306,7 @@ class Logger:
 
     def _init_averitec_out(self):
         assert self.experiment_dir is not None
-        with open(self.averitec_out, "w") as f:
+        with open(self.averitec_out, "w", encoding="utf-8") as f:
             json.dump([], f, indent=4)
 
     def save_next_averitec_out(self, next_out: dict):
@@ -311,11 +315,11 @@ class Logger:
         if not os.path.exists(self.averitec_out) and self.is_averitec_run:
             self._init_averitec_out()
 
-        with open(self.averitec_out, "r") as f:
+        with open(self.averitec_out, "r", encoding="utf-8") as f:
             current_outs = json.load(f)
         current_outs.append(next_out)
         current_outs.sort(key=lambda x: x["claim_id"])  # Score computation requires sorted output
-        with open(self.averitec_out, "w") as f:
+        with open(self.averitec_out, "w", encoding="utf-8") as f:
             json.dump(current_outs, f, indent=4)
 
 
@@ -361,7 +365,7 @@ def _determine_target_dir(benchmark_name: str = "testing",
 def _make_file_handler(path: Path) -> logging.FileHandler:
     """Sets up a stream that writes all logs with level DEBUG or higher into a dedicated
     TXT file. It automatically removes any string formatting."""
-    file_handler = RotatingFileHandler(path, maxBytes=10 * 1024 * 1024, backupCount=5)
+    file_handler = RotatingFileHandler(path, maxBytes=10 * 1024 * 1024, backupCount=5, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     formatter = RemoveStringFormattingFormatter()
     file_handler.setFormatter(formatter)

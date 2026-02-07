@@ -42,7 +42,7 @@ AVAILABLE_MODELS = pd.read_csv(working_dir / "config/available_models.csv", skip
 def model_specifier_to_shorthand(specifier: str) -> str:
     """Returns model shorthand for the given specifier."""
     try:
-        platform, model_name = specifier.split(':')
+        platform, model_name = specifier.split(':', 1)
     except Exception as e:
         print(e)
         raise ValueError(f'Invalid model specification "{specifier}". Check "config/available_models.csv" for available\
@@ -157,6 +157,56 @@ class DeepSeekAPI:
         return completion
 
 
+class OllamaAPI:
+    """API wrapper for Ollama Cloud."""
+    
+    BASE_URL = "https://ollama.com/api"
+    
+    def __init__(self, model: str):
+        self.model = model
+        self.base_url = self.BASE_URL
+        
+        # Get API key
+        self.api_key = api_keys.get("ollama_api_key")
+        if not self.api_key:
+            raise ValueError("No Ollama API key provided. Add it to config/api_keys.yaml")
+
+    def __call__(self, prompt: Prompt, system_prompt: str, **kwargs):
+        url = f"{self.base_url}/chat"
+        
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": str(prompt)})
+        
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "stream": False,
+        }
+        
+        # Add optional parameters
+        if "temperature" in kwargs:
+            payload["options"] = payload.get("options", {})
+            payload["options"]["temperature"] = kwargs["temperature"]
+        if "top_p" in kwargs:
+            payload["options"] = payload.get("options", {})
+            payload["options"]["top_p"] = kwargs["top_p"]
+        
+        # Set headers with Authorization
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        
+        response = requests.post(url, json=payload, headers=headers)
+        
+        if response.status_code != 200:
+            raise RuntimeError(f"Ollama API request failed: {response.text}")
+        
+        return response.json()["message"]["content"]
+
+
 class Model(ABC):
     """Base class for all (M)LLMs. Use make_model() to instantiate a new model."""
     api: Callable[..., str]
@@ -193,7 +243,7 @@ class Model(ABC):
         self.repetition_penalty = repetition_penalty
         self.device = device
 
-        self.api = self.load(specifier.split(":")[1])
+        self.api = self.load(specifier.split(":", 1)[1])
 
         # Statistics
         self.n_calls = 0
@@ -378,6 +428,36 @@ class DeepSeekModel(Model):
             logger.warning("Error while calling the LLM! Continuing with empty response.\n" + str(e))
             logger.warning("Prompt used:\n" + str(prompt))
         return ""
+
+
+class OllamaModel(Model):
+    """Model class for Ollama LLMs (local or cloud)."""
+    open_source = True
+    accepts_images = False  # Basic text-only for now
+    accepts_videos = False
+    accepts_audio = False
+
+    def load(self, model_name: str) -> OllamaAPI:
+        logger.info(f"Connecting to Ollama Cloud: {model_name} ...")
+        return OllamaAPI(model=model_name)
+
+    def _generate(self, prompt: Prompt, temperature: float, top_p: float, top_k: int,
+                  system_prompt: str = None) -> str:
+        try:
+            return self.api(
+                prompt,
+                system_prompt=system_prompt,
+                temperature=temperature,
+                top_p=top_p,
+            )
+        except Exception as e:
+            logger.warning(f"Error calling Ollama: {e}")
+            logger.warning(f"Prompt used:\n{str(prompt)}")
+        return ""
+
+    def count_tokens(self, prompt: Prompt | str) -> int:
+        # Simple estimation: ~1.3 tokens per word for most models
+        return int(len(str(prompt).split()) * 1.3)
 
 
 class HuggingFaceModel(Model, ABC):
@@ -756,8 +836,9 @@ def make_model(name: str, **kwargs) -> Model:
     else:
         specifier = name
 
-    api_name = specifier.split(":")[0].lower()
-    model_name = specifier.split(":")[1].lower()
+    parts = specifier.split(":", 1)
+    api_name = parts[0].lower()
+    model_name = parts[1].lower() if len(parts) > 1 else ""
     match api_name:
         case "openai":
             return GPTModel(specifier, **kwargs)
@@ -775,6 +856,9 @@ def make_model(name: str, **kwargs) -> Model:
                 # raise  # Re-raise the exception or handle it as needed (e.g., fallback to CPU)
         case "deepseek":
             return DeepSeekModel(specifier, **kwargs)
+        case "ollama":
+            print(bold("Loading Ollama model. Make sure Ollama server is running."))
+            return OllamaModel(specifier, **kwargs)
         case "google":
             raise NotImplementedError("Google models not integrated yet.")
         case "anthropic":

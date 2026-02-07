@@ -78,7 +78,7 @@ def run_fact_check(claim_text: str, mode: str, q: queue.Queue, stop_event: threa
         
         # Initialize FactChecker
         fact_checker = FactChecker(
-            llm="gpt_4o", 
+            llm="ollama_gptoss_cloud", 
             procedure_variant="vifactcheck",
             decompose=use_decomposition  # Enable claim extraction for articles
         )
