@@ -41,15 +41,17 @@ async def read_index():
     return FileResponse(os.path.join(static_dir, "index.html"))
 
 class CheckRequest(BaseModel):
-    claim: str
+    claim: str  # Actually can be either claim or article text
+    mode: str = "article"  # "claim" or "article" - default to article per user requirement
 
 
 
-def run_fact_check(claim_text: str, q: queue.Queue, stop_event: threading.Event = None):
+def run_fact_check(claim_text: str, mode: str, q: queue.Queue, stop_event: threading.Event = None):
     """Runs the fact check in a separate thread.
     
     Args:
-        claim_text: The claim to fact-check
+        claim_text: The claim or article text to fact-check
+        mode: "claim" or "article" - determines if claim extraction is used
         q: Queue for sending events to the frontend
         stop_event: Threading event to signal early termination (currently not used due to blocking FactChecker)
     """
@@ -70,8 +72,21 @@ def run_fact_check(claim_text: str, q: queue.Queue, stop_event: threading.Event 
         
         logger.set_experiment_dir(path=result_base_dir / "web_demo")
         
+        # For article mode, enable claim decomposition at FactChecker level
+        # This will extract claims before verification
+        use_decomposition = (mode == "article")
+        
         # Initialize FactChecker
-        fact_checker = FactChecker(llm="ollama_deepseek_cloud", procedure_variant="vifactcheck")
+        fact_checker = FactChecker(
+            llm="ollama_deepseek_cloud", 
+            procedure_variant="vifactcheck",
+            decompose=use_decomposition  # Enable claim extraction for articles
+        )
+        
+        # NOTE: Vietnamese preprocessing disabled for now as it causes conflicts with LLM decomposition
+        # The LLM handles Vietnamese text natively without needing tokenization preprocessing
+        # if use_decomposition:
+        #     fact_checker.claim_extractor.use_vietnamese_preprocessing = True
         
         # Run check
         # Note: FactChecker.check_content() is blocking and cannot be easily interrupted
@@ -141,7 +156,7 @@ async def check_claim(request: CheckRequest, req: Request):
     # Note: Because FactChecker uses shared global state (logger), proper concurrency 
     # control would be needed for a real multi-user app. 
     # For a local demo, we assume one request at a time.
-    t = threading.Thread(target=run_fact_check, args=(request.claim, q, stop_event))
+    t = threading.Thread(target=run_fact_check, args=(request.claim, request.mode, q, stop_event))
     t.start()
 
     async def event_generator():

@@ -5,6 +5,7 @@ to the UI without relying on log parsing.
 """
 
 import uuid
+import contextvars
 from contextlib import contextmanager
 from typing import Optional, Dict, Any
 from queue import Queue
@@ -23,6 +24,10 @@ class StageEmitter:
         # Update existing event
         StageEmitter.update(event_id, status='complete', detail='Results...')
         
+        # Track nested events
+        with StageEmitter.parent(parent_id):
+            StageEmitter.emit(...)  # Will have parent_id
+            
         # Or use context manager for auto start/complete
         with StageEmitter.track(stage, title='...') as tracker:
             # Do work
@@ -31,6 +36,7 @@ class StageEmitter:
     
     _queue: Optional[Queue] = None
     _enabled: bool = True
+    _parent_id = contextvars.ContextVar("stage_parent_id", default=None)
     
     @classmethod
     def set_queue(cls, queue: Optional[Queue]):
@@ -46,6 +52,16 @@ class StageEmitter:
     def disable(cls):
         """Disable event emission (for testing)."""
         cls._enabled = False
+
+    @classmethod
+    @contextmanager
+    def parent(cls, parent_id: Optional[str]):
+        """Context manager to set the current parent event ID."""
+        token = cls._parent_id.set(parent_id)
+        try:
+            yield
+        finally:
+            cls._parent_id.reset(token)
     
     @classmethod
     def emit(cls, 
@@ -53,15 +69,17 @@ class StageEmitter:
              status: str = 'inprogress',
              title: Optional[str] = None,
              detail: Optional[str] = None,
-             metadata: Optional[Dict[str, Any]] = None) -> str:
+             metadata: Optional[Dict[str, Any]] = None,
+             parent_id: Optional[str] = None) -> str:
         """Emit a new stage event.
         
         Args:
-            stage: VerificationStage enum value
+            stage: VerificationStage enum value (or string for custom stages)
             status: 'inprogress' or 'complete'
             title: Custom title (if None, uses stage.title with metadata)
             detail: Detail text (result or progress info)
             metadata: Dict for formatting title template (e.g., {'question': '...'})
+            parent_id: Optional parent event ID (overrides context if provided)
         
         Returns:
             Event ID (UUID) for future updates
@@ -71,24 +89,43 @@ class StageEmitter:
         
         event_id = str(uuid.uuid4())[:12]  # Short UUID
         
+        # Resolve title and description from enum/object or use raw values
+        stage_name = getattr(stage, 'name', str(stage))
+        stage_value = getattr(stage, 'value', 0)
+        # If stage is an enum tuple, value might be (id, title, desc)
+        if isinstance(stage_value, tuple):
+             stage_id = stage_value[0]
+             default_title = stage_value[1]
+             default_desc = stage_value[2]
+        else:
+             stage_id = stage_value
+             default_title = getattr(stage, 'title', str(stage))
+             default_desc = getattr(stage, 'description', '')
+
         # Format title with metadata if provided
         if title is None:
-            title = stage.title
+            title = default_title
             if metadata:
                 try:
                     title = title.format(**metadata)
                 except (KeyError, ValueError):
                     pass  # Use template as-is if formatting fails
         
+        # Determine parent_id
+        current_parent_id = parent_id if parent_id is not None else cls._parent_id.get()
+
         event = {
             "type": "stage",
             "id": event_id,
             "status": status,
-            "stage": stage.name,  # Enum name as string
-            "stage_id": stage.value,  # Numeric ID for ordering
+            "stage": stage_name,
+            "stage_id": stage_id,
             "title": title,
-            "detail": detail or stage.description,
+            "detail": detail or default_desc,
         }
+        
+        if current_parent_id:
+            event["parent_id"] = current_parent_id
         
         cls._queue.put(event)
         return event_id

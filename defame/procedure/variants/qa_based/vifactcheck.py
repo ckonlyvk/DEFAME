@@ -5,6 +5,7 @@ from defame.procedure.variants.qa_based.base_vi import VietnameseQABased
 from enum import Enum
 
 class VerificationStage(Enum):
+    EXTRACT_CLAIMS = (0, "Phát hiện câu claim", "Tách câu cần kiểm chứng từ tin tức")
     START_VERIFICATION = (1, "Bắt đầu kiểm chứng", "Xác định vấn đề hoặc hiện tượng cần kiểm chứng")
     FORMULATE_QUESTION = (2, "Đặt câu hỏi kiểm chứng", "Xây dựng câu hỏi hoặc giả thuyết nghiên cứu")
     LITERATURE_REVIEW = (3, "Tìm tài liệu cho câu hỏi: {question}", "Thu thập và phân tích tài liệu liên quan")
@@ -92,12 +93,15 @@ class ViFactCheck(VietnameseQABased):
         return None
 
     def apply_to(self, doc: Report) -> (Label, dict[str, Any]):
+        # This method receives a SINGLE claim (extraction already done by FactChecker if needed)
+        # We just need to verify the claim
+
         # Stage 1: Start Verification
-        claim_text = str(doc.claim)[:100]  # First 100 chars for display
+        claim_display = str(doc.claim)
         start_event = StageEmitter.emit(
             VerificationStage.START_VERIFICATION,
             status='inprogress',
-            detail=f'Đang phân tích tuyên bố: "{claim_text}"'
+            detail=f'Đang phân tích tuyên bố: "{claim_display}"'
         )
         
         # Stage 2: Formulate Questions (Vietnamese-optimized)
@@ -106,7 +110,7 @@ class ViFactCheck(VietnameseQABased):
             status='inprogress'
         )
         
-        questions = self._pose_questions(no_of_questions=2, doc=doc)
+        questions = self._pose_questions(no_of_questions=1, doc=doc)
         
         # Format question list outside f-string to avoid backslash error
         question_list = ", ".join(f'"{q}"' for q in questions)
@@ -166,4 +170,6 @@ class ViFactCheck(VietnameseQABased):
         )
 
         return label, dict(q_and_a=q_and_a)
+
+
 

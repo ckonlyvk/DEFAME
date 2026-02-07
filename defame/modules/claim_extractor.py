@@ -11,13 +11,21 @@ class ClaimExtractor:
                  interpret: bool = False,
                  decompose: bool = False,
                  decontextualize: bool = False,
-                 filter_check_worthy: bool = False):
+                 filter_check_worthy: bool = False,
+                 use_vietnamese_preprocessing: bool = False,
+                 decompose_prompt_cls: type = None):
         self.llm = llm
         self.prepare_rules = prepare_rules
         self.do_interpretation = interpret
         self.do_decomposition = decompose
         self.do_decontextualization = decontextualize
         self.do_filtering = filter_check_worthy
+        self.use_vietnamese_preprocessing = use_vietnamese_preprocessing
+        
+        if decompose_prompt_cls is None:
+            self.decompose_prompt_cls = DecomposePrompt
+        else:
+            self.decompose_prompt_cls = decompose_prompt_cls
 
         # if self.do_decomposition:
         #     # Requires `python -m spacy download en_core_web_sm`
@@ -30,6 +38,15 @@ class ClaimExtractor:
 
     def extract_claims(self, content: Content) -> list[Claim]:
         logger.log(f"Extracting claims from {content.__repr__()}")
+        
+        # Vietnamese preprocessing if enabled
+        if self.use_vietnamese_preprocessing:
+            from defame.utils.vietnamese_preprocessing import VietnamesePreprocessor
+            preprocessed = VietnamesePreprocessor.preprocess_for_claim_extraction(content.data)
+            
+            # Store preprocessed sentences for better claim detection
+            content.sentences = preprocessed['sentences']
+            logger.log(f"Vietnamese preprocessing: Segmented into {len(preprocessed['sentences'])} sentences")
 
         if self.do_interpretation:
             logger.log("Interpreting...", send=True)
@@ -75,7 +92,7 @@ class ClaimExtractor:
         """Splits up the content into smaller, isolated statements."""
         # result, _ = self.atomic_fact_generator.run(interpretation)
         # atomic_facts = [fact for _, facts in result for fact in facts]
-        prompt = DecomposePrompt(content)
+        prompt = self.decompose_prompt_cls(content)
         response = self.llm.generate(prompt)
         return response["statements"]
 

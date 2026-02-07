@@ -60,12 +60,19 @@ class FactChecker:
 
         self.llm = make_model(llm, **llm_kwargs) if isinstance(llm, str) else llm
 
+        # Determine decompose prompt based on procedure
+        decompose_prompt = None
+        if procedure_variant == "vifactcheck":
+            from defame.prompts.prompts_vi import VietnameseDecomposePrompt
+            decompose_prompt = VietnameseDecomposePrompt
+
         self.claim_extractor = ClaimExtractor(llm=self.llm,
                                               prepare_rules=extra_prepare_rules,
                                               interpret=interpret,
                                               decompose=decompose,
                                               decontextualize=decontextualize,
-                                              filter_check_worthy=filter_check_worthy)
+                                              filter_check_worthy=filter_check_worthy,
+                                              decompose_prompt_cls=decompose_prompt)
 
         if classes is None:
             if class_definitions is None:
@@ -97,7 +104,13 @@ class FactChecker:
                            class_definitions=class_definitions,
                            extra_rules=extra_judge_rules)
 
-        self.doc_summarizer = DocSummarizer(self.llm)
+        # Determine summarizer prompt based on procedure
+        summarizer_prompt = None
+        if procedure_variant == "vifactcheck":
+            from defame.prompts.prompts_vi import VietnameseSummarizeDocPrompt
+            summarizer_prompt = VietnameseSummarizeDocPrompt
+
+        self.doc_summarizer = DocSummarizer(self.llm, prompt_cls=summarizer_prompt)
 
         if procedure_variant is None:
             procedure_variant = self.default_procedure
@@ -120,21 +133,117 @@ class FactChecker:
         verifying each claim individually. Returns the aggregated veracity and the list of corresponding
         fact-checking documents, one doc per claim.
         """
+        from defame.common import StageEmitter
+        
+        # Define ad-hoc stages for extraction if not available globally
+        class ExtractionStage:
+            EXTRACT_CLAIMS = (0, "Phát hiện câu claim", "Tách câu cần kiểm chứng từ tin tức")
+            
         start = time.time()
 
-        claims = self.extract_claims(content)
+        # --- Stage 0: Extract Claims ---
+        extract_event = StageEmitter.emit(
+            ExtractionStage.EXTRACT_CLAIMS,
+            status='inprogress',
+            detail='Đang phân tích và trích xuất các luận điểm...'
+        )
+
+        try:
+            claims = self.extract_claims(content)
+            
+            # Update extraction event
+            StageEmitter.update(
+                extract_event,
+                status='complete',
+                detail=f'Tìm thấy {len(claims)} luận điểm cần kiểm chứng.'
+            )
+        except Exception as e:
+            StageEmitter.update(
+                extract_event,
+                status='error',
+                detail=f'Lỗi khi trích xuất: {str(e)}'
+            )
+            logger.error(f"Error extracting claims: {e}")
+            # Fallback to treating content as single claim if possible, or re-raise
+            # For now, re-raising or returning empty might be best.
+            # Let's fallback to creating a single claim from content if it's a string
+            if isinstance(content, str):
+                 claims = [Claim(content)]
+                 StageEmitter.update(extract_event, detail="Không trích xuất được, sử dụng toàn bộ văn bản làm luận điểm.")
+            else:
+                 raise e
 
         # Verify each single extracted claim
         docs = []
         metas = []
-        for claim in claims:  # TODO: parallelize
-            doc, meta = self.verify_claim(claim)
-            docs.append(doc)
-            metas.append(meta)
-            target_dir = logger.target_dir if logger.target_dir else "out/fact_check"
-            doc.save_to(target_dir)
+        
+        # Helper class for ad-hoc group stages
+        class AdHocStage:
+            def __init__(self, id, title, desc):
+                self.value = id
+                self.title = title
+                self.description = desc
+                self.name = "CLAIM_GROUP"
+        
+        # Verify loop with grouping
+        for i, claim in enumerate(claims):
+            # Create a group for this claim
+            group_title = f"Luận điểm {i+1}: {str(claim)}"
+            
+            # Use helper class to ensure StageEmitter gets correct ID and title
+            group_stage = AdHocStage(100 + i, group_title, str(claim))
+            
+            group_id = StageEmitter.emit(
+                stage=group_stage,
+                status='inprogress',
+                detail=str(claim)
+            )
 
-        aggregated_veracity = aggregate_predictions([doc.verdict for doc in docs])
+            # Set context for children events
+            with StageEmitter.parent(group_id):
+                try:
+                    doc, meta = self.verify_claim(claim)
+                    docs.append(doc)
+                    metas.append(meta)
+                    target_dir = logger.target_dir if logger.target_dir else "out/fact_check"
+                    doc.save_to(target_dir)
+                    
+                    # Update group status to complete
+                    # We can add the verdict to the group header/detail
+                    verdict_map = {
+                        'SUPPORTED': 'ĐƯỢC XÁC NHẬN',
+                        'REFUTED': 'BỊ BÁC BỎ',
+                        'NEI': 'CHƯA ĐỦ BẰNG CHỨNG'
+                    }
+                    # Get clean name from Enum
+                    verdict_key = getattr(doc.verdict, 'name', str(doc.verdict))
+                    # Handle case where str(doc.verdict) returns 'Label.NEI'
+                    if 'Label.' in verdict_key:
+                        verdict_key = verdict_key.split('.')[-1]
+                        
+                    verdict_text = verdict_map.get(verdict_key, verdict_key)
+                    
+                    StageEmitter.update(
+                        group_id, 
+                        status='complete',
+                        detail=f"{str(claim)}\n\nKết luận: {verdict_text}"
+                    )
+                    
+                except Exception as e:
+                    logger.error(f"Error verifying claim {claim}: {e}")
+                    # Update group to error
+                    StageEmitter.update(
+                        group_id,
+                        status='error',
+                        detail=f"{str(claim)}\n\nLỗi: {str(e)}"
+                    )
+                    # We might still want to append None or a failed doc to keep indices aligned if needed
+                    # But check_content return type expects Report. 
+                    # We'll skip adding to docs/metas to avoid breaking aggregation?
+                    # Or better, create a dummy failed Report
+                    # For now just continue
+
+        aggregated_veracity = aggregate_predictions([doc.verdict for doc in docs]) if docs else Label.NEI
         logger.log(bold(f"So, the overall veracity is: {aggregated_veracity.value}"))
         fc_duration = time.time() - start
         logger.log(f"Fact-check took {sec2mmss(fc_duration)}.")
