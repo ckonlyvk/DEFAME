@@ -3,7 +3,7 @@
 from typing import Collection
 from pathlib import Path
 
-from defame.common import Report, Label, Claim, Prompt
+from defame.common import Report, Label, Claim, Prompt, Content
 from defame.common.label import DEFAULT_LABEL_DEFINITIONS
 from defame.evidence_retrieval.integrations.search.common import Source
 from defame.utils.parsing import (remove_non_symbols, extract_last_code_span, 
@@ -107,3 +107,29 @@ class VietnameseAnswerQuestion(Prompt):
             out.update(dict(answer=answer))
 
         return out
+
+
+class VietnameseSummarizeDocPrompt(Prompt):
+    """Vietnamese-specific document summarization prompt."""
+    template_file_path = working_dir / "defame/prompts/vi/summarize_doc_vi.md"
+
+    def __init__(self, doc: Report):
+        super().__init__(placeholder_targets={"[DOC]": doc})
+
+
+class VietnameseDecomposePrompt(Prompt):
+    """Vietnamese-specific decomposition prompt."""
+    template_file_path = working_dir / "defame/prompts/vi/decompose_vi.md"
+
+    def __init__(self, content: Content):
+        self.content = content
+        placeholder_targets = {
+            "[CONTENT]": content,
+            "[INTERPRETATION]": content.interpretation
+        }
+        super().__init__(placeholder_targets=placeholder_targets)
+
+    def extract(self, response: str) -> dict:
+        statements = response.split("\n\n")
+        return dict(statements=[Claim(s.strip(), context=self.content) for s in statements if s],
+                    response=response)

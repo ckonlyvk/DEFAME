@@ -47,9 +47,13 @@ class GoogleSearchResults(SearchResults):
 
 class SerperAPI:
     """Wrapper for the Serper API, handling the communication."""
+    """ Update gl, hl to Vietnamese for Vietnamese search results
+    gl: str = 'vn' -> Google country code (Vietnam)
+    hl: str = 'vi' -> Google language code (Vietnamese)
+    """
     def __init__(self,
-                 gl: str = 'us',
-                 hl: str = 'en',
+                 gl: str = 'vn',
+                 hl: str = 'vi',
                  tbs: Optional[str] = None,
                  **kwargs):
         super().__init__(**kwargs)
