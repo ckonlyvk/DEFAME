@@ -2,7 +2,7 @@ if __name__ == '__main__':  # evaluation uses multiprocessing
     from defame.eval.evaluate import evaluate
 # Run by command: python scripts/vifactcheck/evaluate.py
     evaluate(
-        llm="gpt_4o",
+        llm="gpt_4o_mini",
         tools_config=dict(
             searcher=dict(
                 search_config=dict(

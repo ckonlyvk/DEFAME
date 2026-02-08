@@ -14,6 +14,7 @@ from defame.modules.actor import Actor
 from defame.modules.claim_extractor import ClaimExtractor
 from defame.modules.doc_summarizer import DocSummarizer
 from defame.modules.judge import Judge
+from defame.modules.judge_vi import VietnameseJudge
 from defame.modules.planner import Planner
 from defame.procedure import get_procedure
 from defame.evidence_retrieval import scraper, Tool
@@ -100,6 +101,11 @@ class FactChecker:
         self.actor = Actor(tools=tools)
 
         self.judge = Judge(llm=self.llm,
+                           classes=classes,
+                           class_definitions=class_definitions,
+                           extra_rules=extra_judge_rules)
+        if procedure_variant == "vifactcheck":
+            self.judge = VietnameseJudge(llm=self.llm,
                            classes=classes,
                            class_definitions=class_definitions,
                            extra_rules=extra_judge_rules)
