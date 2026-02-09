@@ -10,6 +10,7 @@ from ezmm import Item
 from defame.common import logger, Claim, Content, Report, Label, Action, Model
 from defame.common.label import DEFAULT_LABEL_DEFINITIONS
 from defame.common.modeling import make_model
+from defame.common.vifact_claim import ViFactClaim
 from defame.modules.actor import Actor
 from defame.modules.claim_extractor import ClaimExtractor
 from defame.modules.doc_summarizer import DocSummarizer
@@ -24,7 +25,7 @@ from defame.utils.console import gray, light_blue, bold, sec2mmss
 
 class FactChecker:
     """The core class for end-to-end fact verification."""
-
+    
     default_procedure = "defame"
 
     def __init__(self,
@@ -60,11 +61,18 @@ class FactChecker:
 
         self.llm = make_model(llm, **llm_kwargs) if isinstance(llm, str) else llm
 
+        is_vifactcheck = procedure_variant in {"vifactcheck", "summary/no_qa_vi"}
         # Determine decompose prompt based on procedure
         decompose_prompt = None
-        if procedure_variant == "vifactcheck":
+        if is_vifactcheck:
             from defame.prompts.prompts_vi import VietnameseDecomposePrompt
             decompose_prompt = VietnameseDecomposePrompt
+
+        # Determine decontextualize prompt based on procedure
+        decontextualize_prompt = None
+        if is_vifactcheck:
+            from defame.prompts.prompts_vi import VietnameseDecontextualizePrompt
+            decontextualize_prompt = VietnameseDecontextualizePrompt
 
         self.claim_extractor = ClaimExtractor(llm=self.llm,
                                               prepare_rules=extra_prepare_rules,
@@ -72,7 +80,8 @@ class FactChecker:
                                               decompose=decompose,
                                               decontextualize=decontextualize,
                                               filter_check_worthy=filter_check_worthy,
-                                              decompose_prompt_cls=decompose_prompt)
+                                              decompose_prompt_cls=decompose_prompt,
+                                              decontextualize_prompt_cls=decontextualize_prompt)
 
         if classes is None:
             if class_definitions is None:
@@ -106,7 +115,7 @@ class FactChecker:
 
         # Determine summarizer prompt based on procedure
         summarizer_prompt = None
-        if procedure_variant == "vifactcheck":
+        if is_vifactcheck:
             from defame.prompts.prompts_vi import VietnameseSummarizeDocPrompt
             summarizer_prompt = VietnameseSummarizeDocPrompt
 
@@ -253,6 +262,11 @@ class FactChecker:
         """Takes an (atomic, decontextualized, check-worthy) claim and fact-checks it.
         This is the core of the fact-checking implementation. Here, the fact-checking
         document is constructed incrementally."""
+
+        if (isinstance(claim, ViFactClaim) and claim.context and self.claim_extractor):
+            claim = self.claim_extractor.decontextualize(claim)
+
+        print("Claim sau decontextualize: ", claim)
         if not isinstance(claim, Claim):
             claim = Claim(claim)
 

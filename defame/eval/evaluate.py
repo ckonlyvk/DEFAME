@@ -4,7 +4,7 @@ import json
 import re
 import time
 import traceback
-from multiprocessing import Process, set_start_method
+from multiprocessing import Process, set_start_method, get_context
 from pathlib import Path
 from queue import Empty
 from typing import Sequence, Optional
@@ -102,8 +102,9 @@ def evaluate(
         allowed_actions = [a for a in benchmark.available_actions if a.name in allowed_actions]
 
     # Sanity check
-    set_start_method("spawn")
-    p = Process(target=validate_config, args=(tools_config, allowed_actions))
+    # set_start_method("spawn")
+    ctx = get_context("spawn")
+    p = ctx.Process(target=validate_config, args=(tools_config, allowed_actions))
     p.start()
     p.join()
 
@@ -368,37 +369,37 @@ def compute_metrics(predicted_labels: np.ndarray,
         print(f"There was an error computing classification metrics: {str(e)}")
 
     # Generation Metrics
-    try:
-        if is_mocheg and (ground_truth_justifications is not None) and (predicted_justifications is not None):
-            nltk.download('punkt')
+    # try:
+    #     if is_mocheg and (ground_truth_justifications is not None) and (predicted_justifications is not None):
+    #         nltk.download('punkt')
 
-            # Load the metrics from `datasets`
-            bertscore_metric = load_metric("bertscore")
-            bleu_metric_datasets = load_metric("bleu")
-            rouge_metric = load_metric("rouge")
+    #         # Load the metrics from `datasets`
+    #         bertscore_metric = load_metric("bertscore")
+    #         bleu_metric_datasets = load_metric("bleu")
+    #         rouge_metric = load_metric("rouge")
 
-            # Post-process justifications for metric computation
-            processed_preds, processed_labels = postprocess_text(predicted_justifications, ground_truth_justifications)
+    #         # Post-process justifications for metric computation
+    #         processed_preds, processed_labels = postprocess_text(predicted_justifications, ground_truth_justifications)
 
-            # Compute scores
-            bleu_datasets = compute_metrics_with_text(processed_preds, processed_labels, bleu_metric_datasets, "bleu")
-            bertscore = compute_metrics_with_text(processed_preds, processed_labels, bertscore_metric, "bertscore")
-            rouge_scores = compute_metrics_with_text(processed_preds, processed_labels, rouge_metric, "rouge")
+    #         # Compute scores
+    #         bleu_datasets = compute_metrics_with_text(processed_preds, processed_labels, bleu_metric_datasets, "bleu")
+    #         bertscore = compute_metrics_with_text(processed_preds, processed_labels, bertscore_metric, "bertscore")
+    #         rouge_scores = compute_metrics_with_text(processed_preds, processed_labels, rouge_metric, "rouge")
 
-            # Aggregate metrics into Generation dictionary
-            generation_metrics = {
-                "BLEU": bleu_datasets["bleu"],
-                "ROUGE1": float(rouge_scores.get("rouge1", 0)),
-                "ROUGE2": float(rouge_scores.get("rouge2", 0)),
-                "ROUGE_L": float(rouge_scores.get("rougeL", 0)),
-                "BERTScore": bertscore["bertscore"],
-            }
+    #         # Aggregate metrics into Generation dictionary
+    #         generation_metrics = {
+    #             "BLEU": bleu_datasets["bleu"],
+    #             "ROUGE1": float(rouge_scores.get("rouge1", 0)),
+    #             "ROUGE2": float(rouge_scores.get("rouge2", 0)),
+    #             "ROUGE_L": float(rouge_scores.get("rougeL", 0)),
+    #             "BERTScore": bertscore["bertscore"],
+    #         }
 
-            # Update metric_summary with generation metrics
-            metric_summary.update({"Generation": generation_metrics})
+    #         # Update metric_summary with generation metrics
+    #         metric_summary.update({"Generation": generation_metrics})
 
-    except Exception as e:
-        print(f"There was an error computing MOCHEG generation metrics: {str(e)}")
+    # except Exception as e:
+    #     print(f"There was an error computing MOCHEG generation metrics: {str(e)}")
 
     # Final accuracy calculation
     if ground_truth_labels is not None:

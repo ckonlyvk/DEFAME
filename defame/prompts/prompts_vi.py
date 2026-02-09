@@ -133,3 +133,31 @@ class VietnameseDecomposePrompt(Prompt):
         statements = response.split("\n\n")
         return dict(statements=[Claim(s.strip(), context=self.content) for s in statements if s],
                     response=response)
+    
+class VietnameseDecontextualizePrompt(Prompt):
+    template_file_path = working_dir / "defame/prompts/vi/decontextualize_vi.md"
+
+    def __init__(self, claim: Claim):
+        placeholder_targets = {
+            "[ATOMIC_FACT]": str(claim),
+            "[CONTEXT]": str(claim.context),
+        }
+        super().__init__(placeholder_targets=placeholder_targets)
+
+class VietnameseProposeQueriesNoQuestions(Prompt):
+    template_file_path = working_dir / "defame/prompts/vi/propose_queries_no_questions_vi.md"
+
+    def __init__(self, doc: Report):
+        print("doc: ", doc)
+        placeholder_targets = {
+            "[DOC]": doc,
+        }
+        super().__init__(placeholder_targets=placeholder_targets)
+
+    def extract(self, response: str) -> dict:
+        from defame.prompts.prompts import extract_queries
+        queries = extract_queries(response)
+        return dict(
+            queries=queries,
+            response=response,
+        )

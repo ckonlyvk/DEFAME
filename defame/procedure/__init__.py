@@ -15,6 +15,7 @@ from .variants.summary_based.all_actions import AllActionsSummary
 from .variants.summary_based.no_develop import NoDevelop
 from .variants.summary_based.no_qa import NoQA
 from .variants.summary_based.static import StaticSummary
+from .variants.summary_based.no_qa_vi import VietnameseNoQA
 
 PROCEDURE_REGISTRY = {
     "defame": DynamicSummary,
@@ -40,6 +41,7 @@ PROCEDURE_REGISTRY = {
     "summary/all_actions": AllActionsSummary,
     "summary/no_develop": NoDevelop,
     "summary/initialize": WithInitialize,
+    "summary/no_qa_vi": VietnameseNoQA
 }
 
 
