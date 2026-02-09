@@ -1,8 +1,6 @@
 from datasets import load_dataset
 
-from defame.common import Label, Claim
-from defame.common.content import Content
-from defame.common.vifact_claim import ViFactClaim
+from defame.common import Label, Claim, Content
 from defame.eval.benchmark import Benchmark
 from defame.evidence_retrieval.tools import Search, Geolocate
 import os
@@ -84,7 +82,7 @@ class ViFactCheck(Benchmark):
             identifier = f"{self.split}_{i}"
             entry = {
                 "id": identifier,
-                "input": ViFactClaim(row['Statement'], context=Content(row['Context']), id=identifier),  # Positional argument, not keyword
+                "input": Claim(row['Statement'], id=identifier, context=Content(row.get('Context', ''))),
                 "label": self.class_mapping[row['labels']],
                 "evidence": row.get('Context', ''),  # Store evidence for reference
                 "justification": ""  # ViFactCheck doesn't provide ground truth justifications

@@ -22,7 +22,7 @@ class QABased(Procedure, ABC):
         else:
             return response["questions"]
 
-    def approach_question_batch(self, questions: list[str], doc: Report) -> list:
+    def approach_question_batch(self, questions: list[str], doc: Report, keep_unanswerable: bool = False) -> list:
         """Tries to answer the given list of questions. Unanswerable questions are dropped."""
         # Answer each question, one after another
         q_and_a = []
@@ -30,6 +30,8 @@ class QABased(Procedure, ABC):
             qa_instance = self.approach_question(question, doc)
             if qa_instance is not None:
                 q_and_a.append(qa_instance)
+            elif keep_unanswerable: 
+                q_and_a.append({"question": question, "answer": "Không tìm thấy thông tin", "url": "local_context"})
 
         # Add Q&A to doc reasoning
         q_and_a_strings = [(f"### {triplet['question']}\n"

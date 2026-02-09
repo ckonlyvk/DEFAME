@@ -3,6 +3,9 @@ from typing import Any
 from defame.common import Report, Label, StageEmitter
 from defame.procedure.variants.qa_based.base_vi import VietnameseQABased
 from enum import Enum
+from defame.common import logger
+from defame.utils.console import light_blue
+from typing import Optional
 
 class VerificationStage(Enum):
     EXTRACT_CLAIMS = (0, "Phát hiện câu claim", "Tách câu cần kiểm chứng từ tin tức")
@@ -33,9 +36,6 @@ class ViFactCheck(VietnameseQABased):
     
     def approach_question(self, question: str, doc: Report = None):
         """Override to emit source information to UI."""
-        from defame.common import logger
-        from defame.utils.console import light_blue
-        from typing import Optional
         
         logger.log(light_blue(f"Answering question: {question}"))
         self.actor.reset()
@@ -110,7 +110,7 @@ class ViFactCheck(VietnameseQABased):
             status='inprogress'
         )
         
-        questions = self._pose_questions(no_of_questions=1, doc=doc)
+        questions = self._pose_questions(no_of_questions=3, doc=doc)
         
         # Format question list outside f-string to avoid backslash error
         question_list = ", ".join(f'"{q}"' for q in questions)
@@ -139,6 +139,7 @@ class ViFactCheck(VietnameseQABased):
             # Answer the question (will emit source updates via approach_question)
             answer_dict = self.approach_question_batch([question], doc)
             q_and_a.extend(answer_dict)
+            logger.log(light_blue(f"Answered question: {answer_dict}"))
             
             # Clear current event
             self._current_lit_event = None

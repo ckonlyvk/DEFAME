@@ -4,6 +4,7 @@ from .variants.qa_based.advanced import AdvancedQA
 from .variants.qa_based.first_result import FirstResult
 from .variants.qa_based.infact import InFact
 from .variants.qa_based.vifactcheck import ViFactCheck
+from .variants.qa_based.vifactcheckstatic import ViFactCheckStatic
 from .variants.naive import NaiveQA
 from .variants.qa_based.no_evidence import NoEvidence
 from .variants.qa_based.no_interpretation import NoInterpretation
@@ -21,6 +22,7 @@ PROCEDURE_REGISTRY = {
     "defame": DynamicSummary,
     "infact": InFact,
     "vifactcheck": ViFactCheck,
+    "vifactcheckstatic": ViFactCheckStatic,
 
     # Simple procedures
     "naive": NaiveQA,

@@ -1,18 +1,23 @@
-# Hướng dẫn
-Bạn là một người kiểm chứng sự thật (fact-checker). Mục tiêu tổng thể của bạn là xác minh một Tuyên bố đã cho. Bạn đã bắt đầu công việc kiểm chứng được ghi lại trong "Hồ sơ". Kiến thức hiện có là không đủ để đưa ra phán quyết cho Tuyên bố. Do đó, **bạn cần tìm thêm bằng chứng**. Để phân tích quá trình kiểm chứng, bạn đã đặt ra một Câu hỏi. Nhiệm vụ của bạn ngay bây giờ là đề xuất một hoặc nhiều truy vấn tìm kiếm nhằm thu thập bằng chứng để trả lời Câu hỏi. Ngoài ra, hãy tuân theo các quy tắc sau:
-* Định dạng các truy vấn tìm kiếm đề xuất của bạn bằng cách đặt mỗi chuỗi truy vấn vào dấu backtick như `thế này`.
-* Hãy tiết kiệm: Chỉ đề xuất số lượng truy vấn tìm kiếm cần thiết để tìm bằng chứng. Không đề xuất các truy vấn tương tự.
-* Hãy ngắn gọn, không cần giải thích các hành động đề xuất của bạn.
-* Đối với nội dung tiếng Việt:
-  - Sử dụng từ khóa tiếng Việt có dấu chính xác
-  - Có thể bổ sung các biến thể không dấu nếu cần thiết
-  - Ưu tiên tìm kiếm trên các nguồn tin tức Việt Nam (VnExpress, Tuổi Trẻ, Thanh Niên, v.v.)
-  - Xem xét các tên riêng và thuật ngữ đặc thù của Việt Nam
+# Role
+Bạn là một chuyên gia truy xuất thông tin (Information Retrieval Specialist). Nhiệm vụ của bạn là tạo ra các từ khóa tìm kiếm tối ưu để trả lời cho một Câu hỏi kiểm chứng cụ thể.
 
-# Hồ sơ
+# Chiến lược truy vấn (Search Strategy)
+Hãy đề xuất các truy vấn dựa trên 3 hướng:
+1. **Truy vấn trực tiếp:** Tìm kiếm thông tin chính xác về thực thể và sự việc.
+2. **Truy vấn đối lập (Debunking):** Tìm kiếm các thông tin đính chính, cảnh báo tin giả hoặc các góc nhìn phản biện (ví dụ thêm từ khóa "tin giả", "sai sự thật", "xác minh").
+3. **Truy vấn nguồn tin cậy:** Ưu tiên các trang báo chính thống (ví dụ: báo Tuổi Trẻ, báo Thanh Niên, báo Nhân Dân, báo VnExpress, v.v.), cổng thông tin chính phủ (.gov.vn), hoặc các tổ chức uy tín.
+
+# Quy tắc định dạng
+* Mỗi truy vấn đặt trong dấu backtick: `từ khóa tìm kiếm`.
+* Sử dụng các toán tử tìm kiếm nếu cần (ví dụ: `site:tuoitre.vn "từ khóa"`, `""`, `-`).
+* Ngắn gọn, không giải thích dài dòng.
+* Ưu tiên tiếng Việt có dấu, bổ sung tiếng Anh nếu là chủ đề quốc tế.
+
+# Hồ sơ hiện tại (Context)
 [DOC]
 
-## Câu hỏi
+# Câu hỏi cần trả lời
 [QUESTION]
 
-## Truy vấn
+# Truy vấn đề xuất
+(Liệt kê các truy vấn hiệu quả nhất tại đây, tối đa 3-5 truy vấn)

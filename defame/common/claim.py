@@ -50,6 +50,12 @@ class Claim(MultimodalSequence):
             claim_str += f"\nOrigin: {origin}"
         if meta_info := self.meta_info:
             claim_str += f"\nMeta info: {meta_info}"
+
+        # if self.context:
+        #     context_str = str(self.context)
+        #     # Only append context if it differs from the claim itself
+        #     if not context_str.strip().endswith(f"**Content**: {super().__str__()}"):
+        #         claim_str += f"\n\nContext:\n{context_str}"
         return claim_str
 
     def __repr__(self):

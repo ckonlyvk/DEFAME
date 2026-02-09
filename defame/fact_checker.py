@@ -15,6 +15,7 @@ from defame.modules.actor import Actor
 from defame.modules.claim_extractor import ClaimExtractor
 from defame.modules.doc_summarizer import DocSummarizer
 from defame.modules.judge import Judge
+from defame.modules.judge_vi import VietnameseJudge
 from defame.modules.planner import Planner
 from defame.procedure import get_procedure
 from defame.evidence_retrieval import scraper, Tool
@@ -64,7 +65,7 @@ class FactChecker:
         is_vifactcheck = procedure_variant in {"vifactcheck", "summary/no_qa_vi"}
         # Determine decompose prompt based on procedure
         decompose_prompt = None
-        if is_vifactcheck:
+        if procedure_variant in ["vifactcheck", "vifactcheckstatic"]:
             from defame.prompts.prompts_vi import VietnameseDecomposePrompt
             decompose_prompt = VietnameseDecomposePrompt
 
@@ -112,10 +113,15 @@ class FactChecker:
                            classes=classes,
                            class_definitions=class_definitions,
                            extra_rules=extra_judge_rules)
+        if procedure_variant in ["vifactcheck", "vifactcheckstatic"]:
+            self.judge = VietnameseJudge(llm=self.llm,
+                           classes=classes,
+                           class_definitions=class_definitions,
+                           extra_rules=extra_judge_rules)
 
         # Determine summarizer prompt based on procedure
         summarizer_prompt = None
-        if is_vifactcheck:
+        if procedure_variant in ["vifactcheck", "vifactcheckstatic"]:
             from defame.prompts.prompts_vi import VietnameseSummarizeDocPrompt
             summarizer_prompt = VietnameseSummarizeDocPrompt
 
