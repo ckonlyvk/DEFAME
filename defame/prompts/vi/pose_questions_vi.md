@@ -13,6 +13,12 @@ Trước khi đưa ra danh sách câu hỏi, hãy thực hiện các bước sau
 * **Định dạng:** Đặt mỗi câu hỏi trong dấu backtick như `thế này`.
 * **Văn hóa Việt Nam:** Sử dụng ngôn ngữ tự nhiên, đúng dấu thanh và chú ý đến các đặc thù về tổ chức/pháp luật tại Việt Nam.
 
+# Ví dụ
+Tuyên bố: "Luật An toàn Thực phẩm mới của New Zealand cấm trồng rau"
+Câu hỏi tốt: `Chính phủ New Zealand có thông qua luật an toàn thực phẩm hạn chế hoạt động làm vườn của công dân không?`
+Câu hỏi không tốt: `Chính phủ có thông qua luật không?`
+Câu hỏi không tốt: `Luật đó có hạn chế hoạt động không?`
+
 # Đầu vào
 * Tuyên bố: [CLAIM]
 * Số lượng câu hỏi cần (N): [N_QUESTIONS]
