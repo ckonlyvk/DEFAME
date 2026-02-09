@@ -62,13 +62,13 @@ class ViFactCheckStatic(VietnameseQABased):
 
         # Stage 1: Start Verification
         
-        questions = self._pose_questions(no_of_questions=3, doc=doc)
+        questions = self._pose_questions(no_of_questions=5, doc=doc)
         
         # Stage 3: Literature Review - Search and answer questions
         q_and_a = []
         for idx, question in enumerate(questions, 1):
             # Answer the question (will emit source updates via approach_question)
-            answer_dict_list = self.approach_question_batch([question], doc)
+            answer_dict_list = self.approach_question_batch([question], doc, keep_unanswerable=True)
             
             for answer_dict in answer_dict_list:
                 # Check if answer is valid
@@ -77,7 +77,14 @@ class ViFactCheckStatic(VietnameseQABased):
                      q_and_a.append(answer_dict)
                      logger.log(light_blue(f"Answered question: {answer_dict}"))
                 else:
-                     logger.log(light_blue(f"Skipping empty answer for question: {question}"))
+                     # Add as unanswered question
+                     no_answer_dict = {
+                         "question": question,
+                         "answer": "Không tìm thấy thông tin trong ngữ cảnh được cung cấp.",
+                         "source_url": "local_context"
+                     }
+                     q_and_a.append(no_answer_dict)
+                     logger.log(light_blue(f"No answer found for question: {question}"))
         
         # Stage 4: Veracity Prediction (Conclusion)
         
