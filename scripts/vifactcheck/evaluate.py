@@ -13,7 +13,7 @@ if __name__ == '__main__':  # evaluation uses multiprocessing
             geolocator=dict()
         ),
         fact_checker_kwargs=dict(
-            procedure_variant="vifactcheck",  # Use Vietnamese-optimized procedure
+            procedure_variant="vifactcheckstatic",  # Use Vietnamese-optimized procedure
             interpret=False,
             decompose=False,
             decontextualize=False,
@@ -26,7 +26,7 @@ if __name__ == '__main__':  # evaluation uses multiprocessing
         benchmark_kwargs=dict(variant="test"),  # test, train, or dev
         # allowed_actions=["search", "geolocate"],
         allowed_actions=["search"],
-        n_samples=1,  # Start with small sample for testing
+        n_samples=10,  # Start with small sample for testing
         sample_ids=None, # list of integers
         random_sampling=False,
         print_log_level="log",

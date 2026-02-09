@@ -63,7 +63,7 @@ class FactChecker:
 
         # Determine decompose prompt based on procedure
         decompose_prompt = None
-        if procedure_variant == "vifactcheck":
+        if procedure_variant in ["vifactcheck", "vifactcheckstatic"]:
             from defame.prompts.prompts_vi import VietnameseDecomposePrompt
             decompose_prompt = VietnameseDecomposePrompt
 
@@ -104,7 +104,7 @@ class FactChecker:
                            classes=classes,
                            class_definitions=class_definitions,
                            extra_rules=extra_judge_rules)
-        if procedure_variant == "vifactcheck":
+        if procedure_variant in ["vifactcheck", "vifactcheckstatic"]:
             self.judge = VietnameseJudge(llm=self.llm,
                            classes=classes,
                            class_definitions=class_definitions,
@@ -112,7 +112,7 @@ class FactChecker:
 
         # Determine summarizer prompt based on procedure
         summarizer_prompt = None
-        if procedure_variant == "vifactcheck":
+        if procedure_variant in ["vifactcheck", "vifactcheckstatic"]:
             from defame.prompts.prompts_vi import VietnameseSummarizeDocPrompt
             summarizer_prompt = VietnameseSummarizeDocPrompt
 
