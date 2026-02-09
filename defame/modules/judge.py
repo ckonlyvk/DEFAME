@@ -1,9 +1,11 @@
 import dataclasses
 
-from defame.common import Report, logger, Model, Prompt, Label
+from defame.common import Report, Model, Prompt, Label
 from defame.common.label import DEFAULT_LABEL_DEFINITIONS
 from defame.prompts.prompts import JudgePrompt, JudgeNaively, JudgeMinimal
-
+from defame.common import logger
+from defame.utils.console import light_blue
+from typing import Optional
 
 @dataclasses.dataclass()
 class FinalAnswer:
@@ -39,6 +41,7 @@ class Judge:
             classes.add(Label.NEI)
 
         prompt = JudgePrompt(doc, classes, self.class_definitions, self.extra_rules)
+        logger.log(light_blue(f"Judge prompt: {prompt}"))
         return self._generate_verdict(prompt)
 
     def judge_naively(self, doc: Report) -> Label:

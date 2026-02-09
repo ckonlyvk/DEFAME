@@ -7,6 +7,8 @@ from defame.common import Report, Model, Label
 from defame.common.label import DEFAULT_LABEL_DEFINITIONS
 from defame.modules.judge import Judge
 from defame.prompts.prompts_vi import VietnameseJudgePrompt
+from defame.common import logger
+from defame.utils.console import light_blue
 
 
 class VietnameseJudge(Judge):
@@ -31,4 +33,5 @@ class VietnameseJudge(Judge):
 
         # Use Vietnamese prompt instead of default
         prompt = VietnameseJudgePrompt(doc, classes, self.class_definitions, self.extra_rules)
+        logger.log(light_blue(f"Judge prompt: {prompt}"))
         return self._generate_verdict(prompt)

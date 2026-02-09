@@ -2,6 +2,7 @@
 **Xác định độ chính xác của Tuyên bố** bằng cách làm theo các bước sau:
 1. Tóm tắt ngắn gọn những thông tin chủ chốt từ quá trình kiểm chứng (xem Hồ sơ) trong tối đa một đoạn văn.
 2. Viết một đoạn văn về việc Lựa chọn Quyết định nào phù hợp nhất. Đưa ra lựa chọn quyết định phù hợp nhất ở cuối và đặt trong dấu backtick như `thế này`.
+3. Nếu thông tin thu thập được từ Hồ sơ không đủ để xác minh Tuyên bố (không có bằng chứng rõ ràng hỗ trợ hoặc bác bỏ), hãy mạnh dạn chọn `NEI` (Not Enough Info/Chưa đủ thông tin). Đừng cố gắng đoán mò nếu thiếu bằng chứng.
 
 [EXTRA_RULES]
 
