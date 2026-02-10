@@ -721,9 +721,38 @@ h1 {
 }
 
 .justification-text {
-    line-height: 1.7;
-    color: var(--text-primary);
-    font-size: 0.9375rem;
+    line-height: 1.8;
+    color: #444;
+    /* Slightly lighter than black for readability */
+    font-size: 0.95rem;
+}
+
+.justification-text p {
+    margin-bottom: 1em;
+}
+
+.citation-badge {
+    display: inline-block;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    font-size: 0.75em;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-decoration: none;
+    vertical-align: middle;
+    margin: 0 2px;
+    transition: background-color 0.2s;
+}
+
+.citation-badge:hover {
+    background-color: #bbdefb;
+    text-decoration: none;
+}
+
+.citation-text {
+    color: var(--text-secondary);
+    font-size: 0.9em;
 }
 
 .justification-text b {
