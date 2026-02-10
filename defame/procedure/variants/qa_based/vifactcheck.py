@@ -130,7 +130,7 @@ class ViFactCheck(VietnameseQABased):
             lit_event = StageEmitter.emit(
                 VerificationStage.LITERATURE_REVIEW,
                 status='inprogress',
-                metadata={'question': question[:80]}  # Format title with question
+                metadata={'question': question[:200]}  # Format title with question
             )
             
             # Store current event ID for approach_question to use

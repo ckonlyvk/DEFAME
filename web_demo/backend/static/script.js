@@ -192,7 +192,7 @@ function generateSummary(message, type) {
         // Extract error type
         const errorMatch = message.match(/(Error|Exception):\s*(.+)/i);
         if (errorMatch) {
-            return 'Lỗi: ' + errorMatch[2].substring(0, 80);
+            return 'Lỗi: ' + errorMatch[2].substring(0, 200);
         }
         if (message.includes('SSL')) {
             return 'Lỗi kết nối SSL';
@@ -211,7 +211,7 @@ function generateSummary(message, type) {
     }
 
     if (type === 'warning') {
-        return 'Cảnh báo: ' + (lines[0] || 'Có vấn đề cần lưu ý').substring(0, 80);
+        return 'Cảnh báo: ' + (lines[0] || 'Có vấn đề cần lưu ý').substring(0, 200);
     }
 
     // For info, try to extract action
@@ -230,7 +230,7 @@ function generateSummary(message, type) {
 
     // Default to first meaningful line
     const firstLine = lines.find(l => l.length > 10) || lines[0] || message;
-    return firstLine.substring(0, 80) + (firstLine.length > 80 ? '...' : '');
+    return firstLine.substring(0, 200) + (firstLine.length > 200 ? '...' : '');
 }
 
 function getToolIcon(type) {

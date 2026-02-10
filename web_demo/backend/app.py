@@ -107,7 +107,15 @@ def run_fact_check(claim_text: str, mode: str, q: queue.Queue, stop_event: threa
         for i, report in enumerate(docs):
             # 1. Append justification with claim context
             claim_text = str(report.claim)
-            claim_verdict = report.verdict.name if report.verdict else "UNKNOWN"
+            # Map verdict to display label
+            verdict_map = {
+                "SUPPORTED": "True",
+                "REFUTED": "False",
+                "NEI": "Unknown"
+            }
+            raw_verdict = report.verdict.name if report.verdict else "NEI"
+            # Handle potential lowercase or other variants if needed, though .name should be consistent
+            claim_verdict = verdict_map.get(raw_verdict, "Unknown")
             
             # Add header for this claim's section
             part = f"**Luận điểm {i+1}:** {claim_text} ({claim_verdict})\n"
