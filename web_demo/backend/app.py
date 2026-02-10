@@ -97,44 +97,66 @@ def run_fact_check(claim_text: str, mode: str, q: queue.Queue, stop_event: threa
         if not docs:
              raise ValueError("No report generated.")
              
-        report = docs[0]
+        # Prepare aggregated results
+        all_evidences = []
+        justification_parts = []
         
-        # Send final result
-        result = report.get_result_as_dict()
+        # Use the aggregated veracity from check_content
+        final_verdict = veracity.name if hasattr(veracity, 'name') else str(veracity)
         
-        # Serialize report for evidence display
-        evidences = []
-        if hasattr(report, 'record'):
-             for block in report.record:
-                 # Check if this is an EvidenceBlock
-                 if hasattr(block, 'evidences'):
-                     for ev in block.evidences:
-                         if ev.is_useful():
-                             # Extract clean text from takeaways
-                             ev_text = str(ev.takeaways) if ev.takeaways else str(ev.raw)
-                             
-                             # Try to extract URL from the evidence
-                             url = None
-                             # Check if the raw result is SearchResults
-                             if hasattr(ev.raw, 'sources') and ev.raw.sources:
-                                 # Get URLs from all sources
-                                 for source in ev.raw.sources:
-                                     if hasattr(source, 'url'):
-                                         # Create separate evidence entry for each source
-                                         source_text = str(source.takeaways) if hasattr(source, 'takeaways') and source.takeaways else ev_text
-                                         evidences.append({
-                                             "text": source_text,
-                                             "url": source.url,
-                                             "title": getattr(source, 'title', None)
-                                         })
-                             else:
-                                 # No URL available, just add the evidence text
-                                 evidences.append({"text": ev_text, "url": None})
+        for i, report in enumerate(docs):
+            # 1. Append justification with claim context
+            claim_text = str(report.claim)
+            # Map verdict to display label
+            verdict_map = {
+                "SUPPORTED": "True",
+                "REFUTED": "False",
+                "NEI": "Unknown"
+            }
+            raw_verdict = report.verdict.name if report.verdict else "NEI"
+            # Handle potential lowercase or other variants if needed, though .name should be consistent
+            claim_verdict = verdict_map.get(raw_verdict, "Unknown")
+            
+            # Add header for this claim's section
+            part = f"**Luận điểm {i+1}:** {claim_text} ({claim_verdict})\n"
+            if report.justification:
+                part += f"{report.justification}"
+            else:
+                part += "Không có giải trình chi tiết."
+            
+            justification_parts.append(part)
+            
+            # 2. Collect evidences (same logic as before, but accumulating)
+            if hasattr(report, 'record'):
+                 for block in report.record:
+                     # Check if this is an EvidenceBlock
+                     if hasattr(block, 'evidences'):
+                         for ev in block.evidences:
+                             if ev.is_useful():
+                                 # Extract clean text from takeaways
+                                 ev_text = str(ev.takeaways) if ev.takeaways else str(ev.raw)
+                                 
+                                 # Try to extract URL from the evidence
+                                 # Check if the raw result is SearchResults
+                                 if hasattr(ev.raw, 'sources') and ev.raw.sources:
+                                     # Get URLs from all sources
+                                     for source in ev.raw.sources:
+                                         if hasattr(source, 'url'):
+                                             # Create separate evidence entry for each source
+                                             source_text = str(source.takeaways) if hasattr(source, 'takeaways') and source.takeaways else ev_text
+                                             all_evidences.append({
+                                                 "text": source_text,
+                                                 "url": source.url,
+                                                 "title": getattr(source, 'title', None)
+                                             })
+                                 else:
+                                     # No URL available, just add the evidence text
+                                     all_evidences.append({"text": ev_text, "url": None})
 
         final_payload = {
-            "verdict": result.get("verdict"),
-            "justification": result.get("justification"),
-            "evidences": evidences
+            "verdict": final_verdict,
+            "justification": "\n\n---\n\n".join(justification_parts),
+            "evidences": all_evidences
         }
         
         q.put({"status_message": "DONE", "result": final_payload})

@@ -192,7 +192,7 @@ function generateSummary(message, type) {
         // Extract error type
         const errorMatch = message.match(/(Error|Exception):\s*(.+)/i);
         if (errorMatch) {
-            return 'Lỗi: ' + errorMatch[2].substring(0, 80);
+            return 'Lỗi: ' + errorMatch[2].substring(0, 200);
         }
         if (message.includes('SSL')) {
             return 'Lỗi kết nối SSL';
@@ -211,7 +211,7 @@ function generateSummary(message, type) {
     }
 
     if (type === 'warning') {
-        return 'Cảnh báo: ' + (lines[0] || 'Có vấn đề cần lưu ý').substring(0, 80);
+        return 'Cảnh báo: ' + (lines[0] || 'Có vấn đề cần lưu ý').substring(0, 200);
     }
 
     // For info, try to extract action
@@ -230,7 +230,7 @@ function generateSummary(message, type) {
 
     // Default to first meaningful line
     const firstLine = lines.find(l => l.length > 10) || lines[0] || message;
-    return firstLine.substring(0, 80) + (firstLine.length > 80 ? '...' : '');
+    return firstLine.substring(0, 200) + (firstLine.length > 200 ? '...' : '');
 }
 
 function getToolIcon(type) {
@@ -602,8 +602,23 @@ function showResult(result) {
     let justification = result.justification || 'No justification provided.';
     justification = justification
         .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+        .replace(/【(.*?)】/g, (match, url) => {
+            // Handle multiple URLs if split by semicolon or space
+            if (url.includes('http')) {
+                // It's a URL
+                return ` <a href="${url.trim()}" class="citation-badge" target="_blank">Nguồn</a> `;
+            } else {
+                // It might be just text or empty
+                return ` <span class="citation-text">[${url}]</span> `;
+            }
+        })
         .replace(/\n/g, '<br>');
+
+    // Wrap in paragraphs if it contains double newlines (converted to <br><br>)
+    // Actually simpler: split by <br><br> and wrap each in <p>
+    const paragraphs = justification.split('<br><br>').map(p => `<p>${p}</p>`).join('');
+    // If no double breaks were found, it might be just <br>, leave as is but wrapped in one p
+    justification = paragraphs || `<p>${justification}</p>`;
 
     let justificationHTML = `
                 <div class="section-title">Giải trình</div>
