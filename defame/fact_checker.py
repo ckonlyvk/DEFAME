@@ -272,7 +272,6 @@ class FactChecker:
         if (isinstance(claim, ViFactClaim) and claim.context and self.claim_extractor):
             claim = self.claim_extractor.decontextualize(claim)
 
-        print("Claim sau decontextualize: ", claim)
         if not isinstance(claim, Claim):
             claim = Claim(claim)
 

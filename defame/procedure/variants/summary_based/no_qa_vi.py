@@ -28,7 +28,6 @@ class VietnameseNoQA(Procedure):
 
     def generate_search_queries(self, doc: Report) -> list[Search]:
         prompt = VietnameseProposeQueriesNoQuestions(doc)
-        print("NoQA prompt: ", prompt)
 
         n_attempts = 0
         while n_attempts < self.max_attempts:

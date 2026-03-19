@@ -105,12 +105,10 @@ class ClaimExtractor:
     def decontextualize(self, claim: Claim) -> Claim:
         """Modify the atomic fact to be self-contained."""
         decontextualize_prompt = self.decontextualize_prompt_cls(claim)
-        print("decontextualize_prompt: ", decontextualize_prompt)
 
         model_response, revised_fact, num_tries = '', '', 0
         while not revised_fact and num_tries <= self.max_retries:
             model_response = self.llm.generate(str(decontextualize_prompt))
-            print("model model_response", model_response)
             revised_fact = extract_last_code_block(
                 model_response
             )
