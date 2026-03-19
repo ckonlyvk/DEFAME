@@ -23,12 +23,12 @@ if __name__ == '__main__':  # evaluation uses multiprocessing
             max_result_len=64_000,  # characters
         ),
         llm_kwargs=dict(temperature=0.01),
-        benchmark_name="vifactcheck",  # Use ViFactCheck benchmark
+        benchmark_name="vifactchecknoqa",  # Use ViFactCheckNoQA benchmark
         benchmark_kwargs=dict(variant="test"),  # test, train, or dev
         allowed_actions=["search"],
-        n_samples=10,  # Start with small sample for testing
+        n_samples=None,  # Start with small sample for testing
         sample_ids=None, # list of integers
         random_sampling=False,
         print_log_level="log",
-        n_workers=1,  # Use 1 worker for initial testing
+        n_workers=3,  # Use 1 worker for initial testing
     )
