@@ -26,9 +26,9 @@ if __name__ == '__main__':  # evaluation uses multiprocessing
         benchmark_name="vifactchecknoqa",  # Use ViFactCheckNoQA benchmark
         benchmark_kwargs=dict(variant="test"),  # test, train, or dev
         allowed_actions=["search"],
-        n_samples=None,  # Start with small sample for testing
+        n_samples=10,  # Start with small sample for testing
         sample_ids=None, # list of integers
         random_sampling=False,
         print_log_level="log",
-        n_workers=3,  # Use 1 worker for initial testing
+        n_workers=1,  # Use 1 worker for initial testing
     )

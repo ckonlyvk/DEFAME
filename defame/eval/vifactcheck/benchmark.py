@@ -4,10 +4,6 @@ from defame.common import Label, Claim, Content
 from defame.common.vifact_claim import ViFactClaim
 from defame.eval.benchmark import Benchmark
 from defame.evidence_retrieval.tools import Search, Geolocate
-import os
-
-# defame/data/vifactcheck/test-00000-of-00001.parquet
-file_path = os.path.join("vifactcheck", "test-00000-of-00001.parquet") 
 
 class ViFactCheck(Benchmark):
     """ViFactCheck: Vietnamese fact-checking benchmark dataset.
@@ -58,7 +54,8 @@ class ViFactCheck(Benchmark):
         """
         self.split = variant
         
-        super().__init__(variant, file_path=file_path)
+        # Don't pass file_path since we load from HuggingFace
+        super().__init__(variant, file_path=None)
     
     def _load_data(self) -> list[dict]:
         """Load dataset from Hugging Face.
@@ -67,16 +64,7 @@ class ViFactCheck(Benchmark):
             List of dataset instances with id, input (Claim), label, and evidence
         """
         # Load dataset from Hugging Face
-        # dataset = load_dataset("tranthaihoa/vifactcheck", split=self.split)
-        
-        # Load dataset from file
-        # dataset = load_dataset("vifactcheck", split=self.split, data_files= {'{variant}': self.file_path})
-
-        dataset = load_dataset(
-            "parquet", 
-            split=self.split, 
-            data_files={self.split: str(self.file_path)}
-        )
+        dataset = load_dataset("tranthaihoa/vifactcheck", split=self.split)
 
         data = []
         for i, row in enumerate(dataset):
@@ -142,7 +130,7 @@ class ViFactCheckNoQA(Benchmark):
         """
         self.split = variant
         
-        super().__init__(variant, file_path=file_path)
+        super().__init__(variant, file_path=None)
     
     def _load_data(self) -> list[dict]:
         """Load dataset from Hugging Face.
@@ -151,16 +139,7 @@ class ViFactCheckNoQA(Benchmark):
             List of dataset instances with id, input (Claim), label, and evidence
         """
         # Load dataset from Hugging Face
-        # dataset = load_dataset("tranthaihoa/vifactcheck", split=self.split)
-        
-        # Load dataset from file
-        # dataset = load_dataset("vifactcheck", split=self.split, data_files= {'{variant}': self.file_path})
-
-        dataset = load_dataset(
-            "parquet", 
-            split=self.split, 
-            data_files={self.split: str(self.file_path)}
-        )
+        dataset = load_dataset("tranthaihoa/vifactcheck", split=self.split)
 
         data = []
         for i, row in enumerate(dataset):
