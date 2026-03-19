@@ -3,6 +3,7 @@ Bạn được cung cấp hồ sơ của một quá trình kiểm chứng thông
 * Hãy trung thực, ngắn gọn, không thêm bất kỳ thông tin nào ngoài thông tin được đưa ra trong Hồ sơ.
 * Trích dẫn các nguồn chính trong bản tóm tắt của bạn. Sử dụng ký hiệu Markdown cho việc đó. Bạn có thể liên kết chúng ngay trong dòng.
 * Đừng nêu lại Tuyên bố. Thay vào đó hãy tập trung vào những hiểu biết chính của quá trình kiểm chứng.
+* Khi đề cập đến kết luận (verdict), hãy sử dụng các thuật ngữ sau thay cho tiếng Anh: SUPPORTED -> True, REFUTED -> False, NEI -> Unknown.
 * Chỉ in ra bản tóm tắt.
 
 # Hồ sơ
