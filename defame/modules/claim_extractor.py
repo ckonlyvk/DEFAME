@@ -2,7 +2,7 @@ from defame.common import logger, Model, Content, Claim
 from defame.prompts.prompts import (SYMBOL, NOT_SYMBOL, DecontextualizePrompt, FilterCheckWorthyPrompt, InterpretPrompt,
                                     DecomposePrompt)
 from defame.utils.console import light_blue
-from defame.utils.parsing import extract_first_square_brackets, extract_first_code_block
+from defame.utils.parsing import extract_first_square_brackets, extract_first_code_block, extract_last_code_block
 
 
 class ClaimExtractor:
@@ -13,7 +13,8 @@ class ClaimExtractor:
                  decontextualize: bool = False,
                  filter_check_worthy: bool = False,
                  use_vietnamese_preprocessing: bool = False,
-                 decompose_prompt_cls: type = None):
+                 decompose_prompt_cls: type = None,
+                 decontextualize_prompt_cls: type = None):
         self.llm = llm
         self.prepare_rules = prepare_rules
         self.do_interpretation = interpret
@@ -26,6 +27,11 @@ class ClaimExtractor:
             self.decompose_prompt_cls = DecomposePrompt
         else:
             self.decompose_prompt_cls = decompose_prompt_cls
+
+        if decontextualize_prompt_cls is None:
+            self.decontextualize_prompt_cls = DecontextualizePrompt
+        else:
+            self.decontextualize_prompt_cls = decontextualize_prompt_cls
 
         # if self.do_decomposition:
         #     # Requires `python -m spacy download en_core_web_sm`
@@ -96,17 +102,22 @@ class ClaimExtractor:
         response = self.llm.generate(prompt)
         return response["statements"]
 
-    def decontextualize(self, claim: Claim):
+    def decontextualize(self, claim: Claim) -> Claim:
         """Modify the atomic fact to be self-contained."""
-        decontextualize_prompt = DecontextualizePrompt(claim)
+        decontextualize_prompt = self.decontextualize_prompt_cls(claim)
 
         model_response, revised_fact, num_tries = '', '', 0
         while not revised_fact and num_tries <= self.max_retries:
             model_response = self.llm.generate(str(decontextualize_prompt))
-            revised_fact = extract_first_code_block(
-                model_response, ignore_language=True
+            revised_fact = extract_last_code_block(
+                model_response
             )
             num_tries += 1
+        print("revised_fact: ", revised_fact)
+        if revised_fact:
+            return Claim(revised_fact.strip(), id=claim.id, scope=claim.scope, context=claim.context)
+        else:
+            return claim
 
     def is_check_worthy(self, claim: Claim) -> bool:
         """Identifies whether the given atomic fact is check-worthy."""
